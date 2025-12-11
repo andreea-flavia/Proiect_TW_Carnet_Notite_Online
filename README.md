@@ -1,8 +1,8 @@
-#Web app for taking notes during courses/labs
+# Web app for taking notes during courses/labs
 
 Developing a web app that allows students to take notes during courses/labs.
 
-#Description
+# Description
 
 The application must allow students to organise their notes by classes they attend and individual study activities.
 
