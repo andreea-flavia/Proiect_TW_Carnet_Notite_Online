@@ -2,42 +2,43 @@ import db from '../dbConfig.js';
 import Sequelize from 'sequelize';
 
 const Users = db.define('Users', {
-    UserId:{  //Nu se pune in Postman fiindca e auto - increment
+    user_id:{  //Nu se pune in Postman fiindca e auto - increment
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
     },
 
-    UserMail: {
+    user_mail: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
+        validate: {
+            isEmail: true,
+            isAseEmail(value) {
+                if(!value.endsWith('@stud.ase.ro')) {
+                    throw new Error('Trebuie sa folositi adresa de mail institutionala @stud.ase.ro');
+                }
+            }
+        }
     },
 
-    UserPassword: { 
+    user_password: { 
         type: Sequelize.STRING,
         allowNull: false
     },
 
-    UserFirstName: {
+    user_first_name: {
         type: Sequelize.STRING,
         allowNull: false
     },
 
-    UserLastName: {
+    user_last_name: {
         type: Sequelize.STRING,
         allowNull: false
     },
-/*
-        UserCreatedAt: {
-        type: Sequelize.,
-        allowNull: false
-    },
-        UserUpdatedAt: {
-        type: Sequelize.,
-        allowNull: false
-    }*/
+}, {
+    timestamps:true
 });
 
 export default Users;

@@ -1,4 +1,6 @@
 import Users from '../entities/Users.js';
+import Notes from '../entities/Notes.js';
+import Study_Groups from '../entities/Study_Groups.js';
 
 async function createUser(user) {
     return await Users.create(user);
@@ -12,8 +14,50 @@ async function getUserById(id) {
     return await Users.findByPk(id);
 }
 
+//ret un user cu toate notitele sale
+async function getUserWithNotes(id){
+    return await Users.findByPk( id, {
+        include: [{model: Notes, as: 'myNotes'}]
+    });
+}
+
+//ret un user cu toate grupurile de care apartine
+async function getUserWithGroups(id){
+    return await Users.findByPk(id, {
+        model: Study_Groups, as: 'memberOf', through: { attribiutes: ['role']}
+    });
+}
+
+//gaseste user dupa mail
+async function getUserByEmail(email){
+    return await Users.findOne({where: {user_mail: email}});
+}
+
+//actualizare date user
+async function updateUser(id, userData){
+    const user = await Users.findByPk(id);
+    if(!user){
+        return null;
+    }
+    return await user.update(userData);
+}
+
+//sterge user
+async function deleteUser(id){
+    const user = await Users.findByPk(id);
+    if(!user){
+        return null;
+    }
+    return await user.destroy();
+}
+
 export {
     createUser,
     getUsers,
-    getUserById
+    getUserById,
+    getUserWithNotes,
+    getUserWithGroups,
+    getUserByEmail,
+    updateUser,
+    deleteUser
 }
