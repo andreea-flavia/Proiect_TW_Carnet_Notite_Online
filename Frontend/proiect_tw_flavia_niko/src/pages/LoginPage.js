@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+
 
 const LoginPage = () => {
 	const [email, setEmail] = useState('');
@@ -19,14 +22,32 @@ const LoginPage = () => {
 		if (error && validateEmail(e.target.value)) setError('');
 	};
 
-	const handleSubmit = () => {
+	const handleSubmit = async (e) => {
+
+		if(e) e.preventDefault();
+		/*
 		if (!validateEmail(email)) {
 			setError('Please enter an institutional email ending with @stud.ase.ro');
 			return;
 		}
-		setError('');
-		// After successful validation navigate to Dashboard
+		try{
+			setError('');
+			const response = await axios.post('http://localhost:9000/api/login', {
+				email: email,
+				password: password
+			});
+
+			if(response.data.success){
+            	navigate('/dashboard');
+			}
+		} catch(e){
+			const serverMessage = e.response?.data?.error || 'Error';
+			setError(serverMessage);
+			console.log("Server error:", serverMessage);
+		}*/
+
 		navigate('/dashboard');
+
 	};
 
 	return (

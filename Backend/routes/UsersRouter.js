@@ -62,11 +62,33 @@ usersRouter.route('/user/:id/notes').get(async(req, res) => {
 });
 
 //ruta pentru login
-usersRouter.route('/user/search/user_mail').post(async(req, res) => {
-    const email = req.query.user_mail;
-    const user = await getUserByEmail(email);
-    if(user) return res.json(user);
-    return res.status(404).json({error: 'User not found'});
-})
+usersRouter.route('/login').post(async(req, res) => { ///user/search/user_mail
+    try{
+        const {email, password}  = req.body;
+        const user = await getUserByEmail(email);
+
+        console.log("Date primite din React:", { email, password });
+        console.log("Date gasite in DB:", user ? user.user_password : "User inexistent");
+
+        if(!user){
+            return res.status(404).json({error: 'User not found! Please register first.'});
+        }
+        if(user.user_password.trim() !== password.trim()){
+            return res.status(401).json({error: 'Invalid password!'});
+        }
+
+        return res.status(200).json({
+            success: true,
+            user: {
+                id: user.user_id,
+                email: user.user_mail,
+                firstName: user.user_first_name,
+                lastName: user.user_last_name
+            }
+        });
+    } catch(e){
+        return res.status(500).json({error: 'Internal server error'});
+    }
+});
 
 export default usersRouter;
