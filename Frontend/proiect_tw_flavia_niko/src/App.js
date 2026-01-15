@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import DashBoard from './pages/DashBoard';
 import RegisterPage from './pages/Register';
 import NewNotes from './pages/NewNotes';
+import EditNote from './pages/EditNote';
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
 				<Route path="/login" element={<LoginPage />} />
 					<Route path="/dashboard" element={<DashBoard />} />
 					<Route path="/newnotes" element={<NewNotes />} />
+					<Route path="/editnote/:id" element={<EditNote />} />
 			</Routes>
 		</Router>
 	);

@@ -72,8 +72,8 @@ const DashBoard = () => {
   };
 
   const handleEdit = (note_id) => {
-  // Navigăm către pagina de editare (va trebui să creezi această rută)
-  navigate(`/NewNotes/${note_id}`);
+  // Trimitem ID-ul notiței în URL pentru ca pagina NewNotes să știe ce să încarce
+  navigate(`/editnote/${note_id}`);
 };
 
   return (
