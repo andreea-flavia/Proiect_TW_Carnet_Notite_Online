@@ -1,0 +1,2 @@
+Am inceput cu partea de backend. Am creat baza de date pentru stocarea informatiilor despre studenti. Se executa diferite operatii CRUD
+Apoi am instalat react si am adaugat mai multe pagini. Pentru a trece de la o pagina la alta am folosit useNavigate()
