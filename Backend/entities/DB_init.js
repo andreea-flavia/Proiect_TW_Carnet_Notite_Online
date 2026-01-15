@@ -61,6 +61,22 @@ function PK_Config(){
 function DB_Init(){
     DB_Create();
     PK_Config();
+    // seed default subjects if table is empty
+    try {
+        Subjects.findAll().then(list => {
+            if(!list || list.length === 0){
+                Subjects.bulkCreate([
+                    { subject_code: 'BIO101', subject_name: 'Biology', year: 1, semester: 1 },
+                    { subject_code: 'MATH101', subject_name: 'Mathematics', year: 1, semester: 1 },
+                    { subject_code: 'CS101', subject_name: 'Computer Science', year: 1, semester: 1 },
+                    { subject_code: 'HIST101', subject_name: 'History', year: 1, semester: 1 },
+                    { subject_code: 'PHYS101', subject_name: 'Physics', year: 1, semester: 1 }
+                ]).then(() => console.log('Default subjects seeded')).catch(err => console.warn('Seeding subjects failed', err));
+            }
+        }).catch(err => console.warn('Failed to check subjects for seeding', err));
+    } catch(e){
+        console.warn('Error during subjects seeding', e);
+    }
 }
 
 export default DB_Init;

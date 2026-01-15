@@ -1,24 +1,29 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; // Am adăugat useNavigate aici
 import axios from 'axios';
 
 const DashBoard = () => {
 
   const [user_first_name, set_first_name] = useState('User');
-
   const [user_last_name, set_last_name] = useState('');
+  const [notes, setNotes] = useState([]);
+  const [allNotes, setAllNotes] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [subjects, setSubjects] = useState([]);
 
   const user_id = localStorage.getItem('user_id');
+  const navigate = useNavigate();
 
-  useEffect( () => {
+  useEffect(() => {
     const fetch_user_name = async () => {
-      if(user_id){
-        try{
+      if (user_id) {
+        try {
           const response = await axios.get(`http://localhost:9000/api/user/${user_id}`);
-          if(response.data){
+          if (response.data) {
             set_first_name(response.data.user_first_name);
             set_last_name(response.data.user_last_name);
           }
-        } catch(e){
+        } catch (e) {
           console.log("Error fetching user name:", e);
         }
       }
@@ -27,8 +32,49 @@ const DashBoard = () => {
     fetch_user_name();
   }, [user_id]);
 
+  // filter notes for current user and optional subject
+  const filteredNotes = allNotes.filter(n => Number(n.user_id) === Number(user_id) && (selectedSubject ? (n.subject && n.subject.subject_name === selectedSubject) : true));
 
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        // fetch all notes (includes subject via backend getNotes)
+        const notesRes = await axios.get('http://localhost:9000/api/note');
+        setAllNotes(notesRes.data || []);
 
+        // fetch subjects list
+        const subjRes = await axios.get('http://localhost:9000/api/subject');
+        setSubjects(subjRes.data || []);
+      } catch (err) {
+        console.error('Error fetching notes or subjects', err);
+      }
+    };
+
+    fetchAll();
+  }, [user_id]);
+
+  // Funcția pentru Ștergere
+  const handleDelete = async (note_id) => {
+    // 1. Cerem confirmarea utilizatorului
+    if (window.confirm("Sigur vrei să ștergi această notiță?")) {
+      try {
+        // 2. Trimitem cererea DELETE către backend (portul 9000 conform codului tău)
+        await axios.delete(`http://localhost:9000/api/note/${note_id}`);
+
+        // 3. Actualizăm lista pe ecran (scoatem nota ștearsă din state-ul allNotes)
+        setAllNotes(prevNotes => prevNotes.filter(note => note.note_id !== note_id));
+
+      } catch (err) {
+        console.error("Eroare la ștergere:", err);
+        alert("Nu s-a putut șterge notița. Verifică dacă serverul este pornit.");
+      }
+    }
+  };
+
+  const handleEdit = (note_id) => {
+  // Navigăm către pagina de editare (va trebui să creezi această rută)
+  navigate(`/NewNotes/${note_id}`);
+};
 
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white overflow-hidden h-screen flex">
@@ -92,10 +138,10 @@ const DashBoard = () => {
             <span className="material-symbols-outlined">settings</span>
             <span className="text-sm font-medium">Settings</span>
           </a>
-          <button className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg h-12 bg-primary hover:bg-[#0fd630] transition-colors text-text-main text-sm font-bold shadow-sm mt-2">
+          <Link to="/newnotes" className="flex w-full items-center justify-center gap-2 rounded-lg h-12 bg-primary hover:bg-[#0fd630] transition-colors text-text-main text-sm font-bold shadow-sm mt-2">
             <span className="material-symbols-outlined text-[20px]">add</span>
             <span>Create New Note</span>
-          </button>
+          </Link>
         </div>
       </aside>
 
@@ -128,13 +174,13 @@ const DashBoard = () => {
               <p className="hidden sm:block text-sm font-semibold text-text-main dark:text-white">
                 {user_first_name} {user_last_name}
               </p>
-              <div className="bg-center bg-no-repeat bg-cover rounded-full h-8 w-8" 
-              style={{ backgroundImage: 'url("https://plus.unsplash.com/premium_vector-1750338927346-6a72ca5301dd?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")' }} />
+              <div className="bg-center bg-no-repeat bg-cover rounded-full h-8 w-8"
+                style={{ backgroundImage: 'url("https://plus.unsplash.com/premium_vector-1750338927346-6a72ca5301dd?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")' }} />
             </div>
           </div>
         </header>
 
-            {/* Partea de sus cu WELCOME, FLAVI! */}
+        {/* Partea de sus cu WELCOME */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8">
           <section className="@container">
             <div className="relative overflow-hidden rounded-2xl bg-surface-light dark:bg-surface-dark border border-[#cfe7d3] dark:border-gray-700 min-h-[200px] flex flex-col justify-end p-6 md:p-8 group shadow-sm">
@@ -150,14 +196,13 @@ const DashBoard = () => {
               </div>
             </div>
           </section>
-        {/* ---- */}
 
           <section className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between sticky top-0 z-20 pt-2 pb-4 bg-background-light dark:bg-background-dark transition-all">
             <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto scrollbar-hide">
-              <button className="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary text-text-main px-4 text-sm font-bold shadow-sm transition-transform active:scale-95">All Notes</button>
-              <button className="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border border-[#cfe7d3] dark:border-gray-700 px-4 text-sm font-medium text-text-main dark:text-gray-300 hover:bg-[#e7f3e9] dark:hover:bg-gray-800 transition-colors">Biology <span className="w-2 h-2 rounded-full bg-green-500" /></button>
-              <button className="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border border-[#cfe7d3] dark:border-gray-700 px-4 text-sm font-medium text-text-main dark:text-gray-300 hover:bg-[#e7f3e9] dark:hover:bg-gray-800 transition-colors">History <span className="w-2 h-2 rounded-full bg-red-500" /></button>
-              <button className="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border border-[#cfe7d3] dark:border-gray-700 px-4 text-sm font-medium text-text-main dark:text-gray-300 hover:bg-[#e7f3e9] dark:hover:bg-gray-800 transition-colors">Math <span className="w-2 h-2 rounded-full bg-blue-500" /></button>
+              <button onClick={() => setSelectedSubject(null)} className={`flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-bold shadow-sm transition-transform active:scale-95 ${selectedSubject === null ? 'bg-primary text-text-main' : 'bg-white dark:bg-surface-dark text-text-main dark:text-gray-300 border border-[#cfe7d3] dark:border-gray-700 hover:bg-[#e7f3e9]'}`}>All Notes</button>
+              <button onClick={() => setSelectedSubject('Biology')} className={`flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-colors ${selectedSubject === 'Biology' ? 'bg-primary text-text-main' : 'bg-white dark:bg-surface-dark text-text-main dark:text-gray-300 border border-[#cfe7d3] dark:border-gray-700 hover:bg-[#e7f3e9]'}`}>Biology <span className="w-2 h-2 rounded-full bg-green-500" /></button>
+              <button onClick={() => setSelectedSubject('History')} className={`flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-colors ${selectedSubject === 'History' ? 'bg-primary text-text-main' : 'bg-white dark:bg-surface-dark text-text-main dark:text-gray-300 border border-[#cfe7d3] dark:border-gray-700 hover:bg-[#e7f3e9]'}`}>History <span className="w-2 h-2 rounded-full bg-red-500" /></button>
+              <button onClick={() => setSelectedSubject('Mathematics')} className={`flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-colors ${selectedSubject === 'Mathematics' ? 'bg-primary text-text-main' : 'bg-white dark:bg-surface-dark text-text-main dark:text-gray-300 border border-[#cfe7d3] dark:border-gray-700 hover:bg-[#e7f3e9]'}`}>Math <span className="w-2 h-2 rounded-full bg-blue-500" /></button>
               <button className="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border border-[#cfe7d3] dark:border-gray-700 pl-3 pr-2 text-sm font-medium text-text-main dark:text-gray-300 hover:bg-[#e7f3e9] dark:hover:bg-gray-800 transition-colors"><span className="material-symbols-outlined text-[18px]">filter_list</span> More</button>
             </div>
             <div className="flex items-center gap-2 self-end sm:self-auto">
@@ -174,42 +219,59 @@ const DashBoard = () => {
           </section>
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
-            {/* Cards omitted for brevity (static examples from original design) */}
-            <div className="group flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl border border-[#cfe7d3] dark:border-gray-700 p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1 relative">
-              <div className="absolute left-0 top-4 bottom-4 w-1 bg-green-500 rounded-r-md" />
-              <div className="flex justify-between items-start mb-3 ml-2">
-                <div>
-                  <span className="inline-block px-2 py-1 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[10px] font-bold uppercase tracking-wider mb-1">Biology</span>
-                  <h3 className="text-lg font-bold text-text-main dark:text-white leading-tight">Intro to Molecular Biology</h3>
+            {/* Render user notes if available */}
+            {filteredNotes && filteredNotes.length > 0 ? (
+              filteredNotes.map(n => (
+                <div key={n.note_id} className="group flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl border border-[#cfe7d3] dark:border-gray-700 p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1 relative">
+                  <div className="absolute left-0 top-4 bottom-4 w-1 bg-green-500 rounded-r-md" />
+                  <div className="flex justify-between items-start mb-3 ml-2">
+                    <div>
+                      <span className="inline-block px-2 py-1 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[10px] font-bold uppercase tracking-wider mb-1">{n.subject ? (n.subject.subject_name || n.subject.subject_title) : 'Subject'}</span>
+                      <h3 className="text-lg font-bold text-text-main dark:text-white leading-tight">{n.title}</h3>
+                    </div>
+                    <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-400 hover:text-primary">
+                      <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                    </button>
+                  </div>
+                  <div className="flex-1 ml-2 mb-4">
+                    <p className="text-sm text-text-main/80 dark:text-gray-400 line-clamp-3 leading-relaxed">{n.content && n.content.length > 200 ? (n.content.substring(0, 197) + '...') : n.content}</p>
+                  </div>
+                  <div className="ml-2 flex flex-wrap gap-2 mb-4">
+                  </div>
+                  <div className="ml-2 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub dark:text-gray-500">
+                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">schedule</span> {n.createdAt ? new Date(n.createdAt).toLocaleDateString() : ''}</span>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                      onClick={() => handleEdit(n.note_id)}
+                      className="p-1.5 hover:bg-primary/10 rounded-md text-gray-400 hover:text-primary transition-colors" title="Edit">
+                        <span className="material-symbols-outlined text-[18px]">edit</span>
+                        </button>
+                      
+                      {/* AM ADĂUGAT onClick AICI */}
+                      <button 
+                        onClick={() => handleDelete(n.note_id)} 
+                        className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md text-gray-400 hover:text-red-500 transition-colors" 
+                        title="Delete"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
+
+                    </div>
+                  </div>
                 </div>
-                <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-400 hover:text-primary">
-                  <span className="material-symbols-outlined text-[20px]">more_vert</span>
-                </button>
-              </div>
-              <div className="flex-1 ml-2 mb-4">
-                <p className="text-sm text-text-main/80 dark:text-gray-400 line-clamp-3 leading-relaxed">Mitochondria functions are critical for cellular respiration. Remember the Krebs cycle steps: Citrate -&gt; Isocitrate -&gt; Alpha-Ketoglutarate...</p>
-              </div>
-              <div className="ml-2 flex flex-wrap gap-2 mb-4">
-                <span className="text-xs font-medium text-text-sub bg-[#e7f3e9] dark:bg-gray-800 dark:text-gray-400 px-2 py-1 rounded-md">#ExamPrep</span>
-                <span className="text-xs font-medium text-text-sub bg-[#e7f3e9] dark:bg-gray-800 dark:text-gray-400 px-2 py-1 rounded-md">#CellStructure</span>
-              </div>
-              <div className="ml-2 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub dark:text-gray-500">
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">schedule</span> Oct 12, 2023</span>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="p-1.5 hover:bg-primary/10 rounded-md text-gray-400 hover:text-primary transition-colors" title="Edit"><span className="material-symbols-outlined text-[18px]">edit</span></button>
-                  <button className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md text-gray-400 hover:text-red-500 transition-colors" title="Delete"><span className="material-symbols-outlined text-[18px]">delete</span></button>
-                </div>
-              </div>
-            </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center text-text-sub">No notes yet. Create your first note.</div>
+            )}
 
             {/* Add New Placeholder Card */}
-            <button className="group flex flex-col items-center justify-center min-h-[260px] bg-background-light dark:bg-background-dark/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary dark:hover:border-primary p-5 transition-all duration-200 hover:bg-primary/5 cursor-pointer">
+            <Link to="/newnotes" className="group flex flex-col items-center justify-center min-h-[260px] bg-background-light dark:bg-background-dark/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary dark:hover:border-primary p-5 transition-all duration-200 hover:bg-primary/5">
               <div className="h-14 w-14 rounded-full bg-white dark:bg-surface-dark shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <span className="material-symbols-outlined text-primary text-3xl">add</span>
               </div>
               <h3 className="text-lg font-bold text-text-main dark:text-white mb-1">Create New Note</h3>
               <p className="text-sm text-text-sub dark:text-gray-500 text-center">Capture your thoughts instantly</p>
-            </button>
+            </Link>
           </section>
         </div>
 
