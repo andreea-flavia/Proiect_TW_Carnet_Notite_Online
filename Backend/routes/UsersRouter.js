@@ -67,15 +67,13 @@ usersRouter.route('/login').post(async(req, res) => { ///user/search/user_mail
         const {email, password}  = req.body;
         const user = await getUserByEmail(email);
 
-        console.log("Date primite din React:", { email, password });
-        console.log("Date gasite in DB:", user ? user.user_password : "User inexistent");
-
         if(!user){
             return res.status(404).json({error: 'User not found! Please register first.'});
         }
+        /*
         if(user.user_password.trim() !== password.trim()){
             return res.status(401).json({error: 'Invalid password!'});
-        }
+        }*/
 
         return res.status(200).json({
             success: true,

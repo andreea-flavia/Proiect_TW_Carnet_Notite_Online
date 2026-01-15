@@ -25,7 +25,7 @@ const LoginPage = () => {
 	const handleSubmit = async (e) => {
 
 		if(e) e.preventDefault();
-		/*
+		
 		if (!validateEmail(email)) {
 			setError('Please enter an institutional email ending with @stud.ase.ro');
 			return;
@@ -33,20 +33,25 @@ const LoginPage = () => {
 		try{
 			setError('');
 			const response = await axios.post('http://localhost:9000/api/login', {
-				email: email,
-				password: password
+				email: email//,
+				//password: password
 			});
 
 			if(response.data.success){
-            	navigate('/dashboard');
+				const id_primit = response.data.user.id;
+				console.log("Id-ul salvat: ", id_primit);
+				if(id_primit){
+					localStorage.setItem('user_id', id_primit);
+					navigate('/dashboard');
+				}
 			}
 		} catch(e){
 			const serverMessage = e.response?.data?.error || 'Error';
 			setError(serverMessage);
 			console.log("Server error:", serverMessage);
-		}*/
+		}
 
-		navigate('/dashboard');
+		// navigate('/dashboard');
 
 	};
 

@@ -1,6 +1,35 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const DashBoard = () => {
+
+  const [user_first_name, set_first_name] = useState('User');
+
+  const [user_last_name, set_last_name] = useState('');
+
+  const user_id = localStorage.getItem('user_id');
+
+  useEffect( () => {
+    const fetch_user_name = async () => {
+      if(user_id){
+        try{
+          const response = await axios.get(`http://localhost:9000/api/user/${user_id}`);
+          if(response.data){
+            set_first_name(response.data.user_first_name);
+            set_last_name(response.data.user_last_name);
+          }
+        } catch(e){
+          console.log("Error fetching user name:", e);
+        }
+      }
+    }
+
+    fetch_user_name();
+  }, [user_id]);
+
+
+
+
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white overflow-hidden h-screen flex">
       {/* Sidebar */}
@@ -96,23 +125,32 @@ const DashBoard = () => {
             </button>
             <div className="h-8 w-[1px] bg-gray-300 dark:bg-gray-700 mx-1" />
             <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-              <p className="hidden sm:block text-sm font-semibold text-text-main dark:text-white">Alex Morgan</p>
-              <div className="bg-center bg-no-repeat bg-cover rounded-full h-8 w-8" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBfLK3pD-ADZZQQ-Kryfjs2w1h7rNOcvLZKQNO0JExepjue2xQcbMU3g62q1LTAEsHtwrj5F4aWUMvLuQj8gVjIwGNgiE9-gpwbEjoorOf7dOV1V7lvP4_oqQpjLNLzjYI4lNe1IuluNc4q__PgbhFxNS1XIvdqBcxaKtkctTSFfNbyPRA2HlQFjyiTJekYYAN5_PJt5Yci1DZEvCDB3vJmBOn53XORBAsWsKYAvjjqhIkTZhfI4l5HA8hFDUUdDw5n867KG-z_VPDU")' }} />
+              <p className="hidden sm:block text-sm font-semibold text-text-main dark:text-white">
+                {user_first_name} {user_last_name}
+              </p>
+              <div className="bg-center bg-no-repeat bg-cover rounded-full h-8 w-8" 
+              style={{ backgroundImage: 'url("https://plus.unsplash.com/premium_vector-1750338927346-6a72ca5301dd?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")' }} />
             </div>
           </div>
         </header>
 
+            {/* Partea de sus cu WELCOME, FLAVI! */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8">
           <section className="@container">
             <div className="relative overflow-hidden rounded-2xl bg-surface-light dark:bg-surface-dark border border-[#cfe7d3] dark:border-gray-700 min-h-[200px] flex flex-col justify-end p-6 md:p-8 group shadow-sm">
               <div className="absolute inset-0 bg-cover bg-center opacity-40 dark:opacity-20 transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBP5wcRe1BYgW9J9keX6YOwn6ZG5PO_y3tGhzM7taI4Tw4l8J6QHNpCNnk5IcBh4-fVreBweRFa52_kh-t4KGovZKWdFjAz9ajy2533TPWyw_0SfKITVyBpYEChjhaoSYBAvx6sucwVpykdENrlRJvkWsR8O8O8cjJOetnA-JAB6nBVkV4QSCQffS9QhM1yQa91r5MowyKd1ZVsnDmZ8K_swMq6ouE0I0shw9ft1PStJZ0v_moLf2cuPl7z968ZFxzsJ6IMCmsRLN9g")' }} />
               <div className="absolute inset-0 bg-gradient-to-t from-background-light dark:from-background-dark/90 via-transparent to-transparent" />
               <div className="relative z-10 max-w-2xl">
-                <h2 className="text-3xl md:text-4xl font-bold text-text-main dark:text-white mb-2">Good Morning, Alex! 👋</h2>
-                <p className="text-text-main/80 dark:text-gray-300 text-lg">You have 3 upcoming exams and 2 notes to review. Ready to learn?</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-text-main dark:text-white mb-2">
+                  Welcome, {user_first_name}!
+                </h2>
+                <p className="text-text-main/80 dark:text-gray-300 text-lg">
+                  Ready to continue your learning journey?
+                </p>
               </div>
             </div>
           </section>
+        {/* ---- */}
 
           <section className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between sticky top-0 z-20 pt-2 pb-4 bg-background-light dark:bg-background-dark transition-all">
             <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto scrollbar-hide">
