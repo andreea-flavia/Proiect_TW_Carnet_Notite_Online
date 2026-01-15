@@ -19,9 +19,9 @@ function EditNote() {
         setSubjects(subjRes.data || []);
 
         // Preluăm detaliile notiței specifice
-        const noteRes = await axios.get(`http://localhost:9000/api/note/${id}`);
+        const noteRes = await axios.get(`http://localhost:9000/api/note/${id}/details`); // Foloseste ruta de detalii completa
         if (noteRes.data) {
-          setTitle(noteRes.data.title);
+          setTitle(noteRes.data.title); 
           setContent(noteRes.data.content);
           setSubjectId(noteRes.data.subject_id);
         }
@@ -37,8 +37,8 @@ function EditNote() {
     e.preventDefault();
     try {
       const payload = {
-        title: title.trim(),
-        content: content.trim(),
+        title: title.trim(),   
+        content: content.trim(), 
         subject_id: Number(subjectId),
       };
 
@@ -80,7 +80,7 @@ function EditNote() {
             <span className="font-medium text-text-main">Edit Note</span>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/')} className="px-4 py-2 text-sm font-semibold text-text-sub hover:text-text-main transition-colors">Cancel</button>
+            <button onClick={() => navigate('/dashboard')} className="px-4 py-2 text-sm font-semibold text-text-sub hover:text-text-main transition-colors">Cancel</button>
             <button type="button" onClick={handleUpdate} className="px-5 py-2 bg-primary hover:bg-purple-600 text-white text-sm font-bold rounded-lg shadow-sm flex items-center gap-2">
               <span className="material-symbols-outlined text-sm">update</span>
               Save Changes

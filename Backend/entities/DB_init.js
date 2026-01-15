@@ -58,6 +58,7 @@ function PK_Config(){
 
 }
 
+/*
 function DB_Init(){
     DB_Create();
     PK_Config();
@@ -77,6 +78,64 @@ function DB_Init(){
     } catch(e){
         console.warn('Error during subjects seeding', e);
     }
+}*/
+
+function DB_Init(){
+    DB_Create();
+    PK_Config();
+    
+    try {
+        Subjects.findAll().then(list => {
+            if(!list || list.length === 0){
+                Subjects.bulkCreate([
+                    // Semestrul 1 - Anul 3
+                    { subject_code: 'MM31', subject_name: 'Multimedia', year: 3, semester: 1 },
+                    { subject_code: 'DAM31', subject_name: 'Mobile Devices and Applications', year: 3, semester: 1 },
+                    { subject_code: 'TW31', subject_name: 'Web Technologies', year: 3, semester: 1 },
+                    { subject_code: 'ECO31', subject_name: 'Econometrics', year: 3, semester: 1 },
+                    { subject_code: 'DSAD31', subject_name: 'Software Development for Data Analysis', year: 3, semester: 1 },
+                    { subject_code: 'PSI31', subject_name: 'Information Systems Design', year: 3, semester: 1 },
+
+                    // Semestrul 2 - Anul 3
+                    { subject_code: 'RC32', subject_name: 'Computer Networks', year: 3, semester: 2 },
+                    { subject_code: 'SIE32', subject_name: 'Economic Information Systems', year: 3, semester: 2 },
+                    { subject_code: 'PS32', subject_name: 'Software Packages', year: 3, semester: 2 },
+                    { subject_code: 'DA32', subject_name: 'Business Law', year: 3, semester: 2 },
+                    { subject_code: 'CTS32', subject_name: 'Software Quality and Testing', year: 3, semester: 2 },
+                    { subject_code: 'SOC32', subject_name: 'Sociology', year: 3, semester: 2 },
+                    { subject_code: 'ST32', subject_name: 'Time Series', year: 3, semester: 2 },
+
+                    // Materia speciala
+                    { subject_code: 'SELF00', subject_name: 'Self Study', year: 0, semester: 0 }
+                ]).then(() => console.log('CSIE Year 3 subjects seeded')).catch(err => console.warn('Seeding subjects failed', err));
+            }
+        }).catch(err => console.warn('Failed to check subjects for seeding', err));
+    } catch(e){
+        console.warn('Error during subjects seeding', e);
+    }
+
+    //Populare Tags
+    try {
+        Tags.findAll().then(list => {
+            if(!list || list.length === 0){
+                Tags.bulkCreate([
+                    { tag_name: 'Important', tag_desc: '#EF4444' },    // Rosu (Tailwind red-500)
+                    { tag_name: 'Exam', tag_desc: '#F59E0B' },         // Portocaliu (amber-500)
+                    { tag_name: 'Laboratory', tag_desc: '#3B82F6' },   // Albastru (blue-500)
+                    { tag_name: 'Seminar', tag_desc: '#10B981' },      // Verde (emerald-500)
+                    { tag_name: 'Course', tag_desc: '#8B5CF6' },       // Mov (violet-500)
+                    { tag_name: 'Project', tag_desc: '#EC4899' },      // Roz (pink-500)
+                    { tag_name: 'To Review', tag_desc: '#6B7280' }     // Gri (gray-500)
+                ]).then(() => console.log('Tags seeded with colors in description'))
+                .catch(err => console.warn('Seeding tags failed', err));
+            }
+        }).catch(err => console.warn('Failed to check tags table', err));
+    } catch(e) {
+        console.warn('Error during tags initialization', e);
+    }
 }
+
+
+
 
 export default DB_Init;

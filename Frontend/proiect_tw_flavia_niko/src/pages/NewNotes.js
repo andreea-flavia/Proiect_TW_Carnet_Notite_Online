@@ -7,7 +7,13 @@ function NewNotes() {
   const [content, setContent] = useState('');
   const [subjectId, setSubjectId] = useState('');
   const [subjects, setSubjects] = useState([]);
+  
+  const [tags, setTags] = useState([]); 
+  const [tag_id, setTagId] = useState('');
+  
   const navigate = useNavigate();
+
+
 
   useEffect(() => {
     const fetchSubjects = async () => {
@@ -19,6 +25,18 @@ function NewNotes() {
       }
     };
     fetchSubjects();
+  }, []);
+
+ useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const response = await axios.get('http://localhost:9000/api/tag');
+        setTags(response.data);
+      } catch (err) {
+        console.log("Error loading tags:", err);
+      }
+    };
+    fetchTags();
   }, []);
 
   const handleSave = async (e) => {
@@ -138,6 +156,7 @@ function NewNotes() {
             <div className="max-w-4xl mx-auto space-y-8">
               <input value={title} onChange={e => setTitle(e.target.value)} className="w-full text-4xl font-extrabold border-none focus:ring-0 placeholder-slate-300 dark:placeholder-slate-700 dark:bg-transparent text-slate-900 dark:text-white p-0" placeholder="Note Title..." type="text" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">
+                {/* Alege subjects */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Subject</label>
                   <div className="relative">
@@ -151,13 +170,27 @@ function NewNotes() {
                     <span className="material-symbols-outlined absolute right-3 top-2.5 text-slate-400 text-xl pointer-events-none">expand_more</span>
                   </div>
                 </div>
+                {/* alege Tag */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Tags</label>
-                  <div className="relative flex items-center">
-                    <span className="material-symbols-outlined absolute left-3 text-slate-400 text-xl">sell</span>
-                    <input className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="Add tags (e.g. #exam, #lecture)" type="text" />
+                  <div className="relative">
+
+                    {/* <span className="material-symbols-outlined absolute left-3 text-slate-400 text-xl">sell</span>
+                    <input className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="Add tags (e.g. #exam, #lecture)" type="text" /> */}
+                  
+                    <select value={tag_id} onChange={ e => setTagId(e.target.value)} className = "w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all appearance-none">
+                      <option disabled value="">Select a tag</option>
+                      {tags.map( t => (
+                        <option key={t.tag_id} value={t.tag_id}> {t.tag_name}</option>
+                      ))}
+                    </select>
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl pointer-events-none">sell </span>
+                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl pointer-events-none">expand_more</span>
+
+
                   </div>
                 </div>
+                {/* ------ */}
               </div>
               <div className="flex flex-wrap items-center gap-1 p-1 bg-slate-50 dark:bg-slate-800 rounded-lg sticky top-0 z-10 border border-slate-100 dark:border-slate-700">
                 <button className="editor-toolbar-btn" title="Bold"><span className="material-symbols-outlined">format_bold</span></button>

@@ -6,6 +6,7 @@ import DashBoard from './pages/DashBoard';
 import RegisterPage from './pages/Register';
 import NewNotes from './pages/NewNotes';
 import EditNote from './pages/EditNote';
+import AllNotesPage from './pages/AllNotes';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
 					<Route path="/dashboard" element={<DashBoard />} />
 					<Route path="/newnotes" element={<NewNotes />} />
 					<Route path="/editnote/:id" element={<EditNote />} />
+					<Route path="/all-notes" element={<AllNotesPage />} />
 			</Routes>
 		</Router>
 	);
