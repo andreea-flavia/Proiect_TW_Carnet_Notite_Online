@@ -8,6 +8,7 @@ const AllNotes = () => {
     const [subjects, setSubjects] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedSubject, setSelectedSubject] = useState('All');
+    const [sortOrder, setSortOrder] = useState('none');
     const [userName, setUserName] = useState('User');
 
     const userId = localStorage.getItem('user_id');
@@ -18,23 +19,60 @@ const AllNotes = () => {
             try {
                 const notesRes = await axios.get(`http://localhost:9000/api/user/${userId}/notes`);
 
-                if (notesRes.data && notesRes.data.Notes) {
-                setNotes(notesRes.data.Notes); 
-                } else {
-                setNotes(Array.isArray(notesRes.data) ? notesRes.data : []);
+                // backend returns a user object with `myNotes` array
+                let fetched = [];
+                if (notesRes.data && Array.isArray(notesRes.data.myNotes)) {
+                    fetched = notesRes.data.myNotes;
+                } else if (Array.isArray(notesRes.data)) {
+                    fetched = notesRes.data;
                 }
+
+                // normalize fields so UI can keep using note_title / note_content
+                const normalized = fetched.map(n => ({
+                    ...n,
+                    note_id: n.note_id,
+                    note_title: n.title || n.note_title,
+                    note_content: n.content || n.note_content,
+                    Subject: n.subject || n.Subject
+                }));
+
+                setNotes(normalized);
             } catch (err) {
                 // console.error("Error fetching data:", err);
             }
-            };
+        };
         fetchData();
     }, [userId]);
 
+    // fetch subjects for dropdown
+    useEffect(() => {
+        const fetchSubjects = async () => {
+            try {
+                const res = await axios.get('http://localhost:9000/api/subject');
+                if (Array.isArray(res.data)) setSubjects(res.data);
+            } catch (e) {
+                // ignore
+            }
+        };
+        fetchSubjects();
+    }, []);
+
     // Logica de filtrare
     const filteredNotes = notes.filter(n => {
-        const matchesSearch = n.note_title.toLowerCase().includes(searchTerm.toLowerCase());
+        const title = (n.note_title || '').toString();
+        const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSubject = selectedSubject === 'All' || n.Subject?.subject_name === selectedSubject;
         return matchesSearch && matchesSubject;
+    });
+
+    // sortare dupa titlu notitei
+    const sortedNotes = [...filteredNotes].sort((a, b) => {
+        if (sortOrder === 'none') return 0;
+        const ta = (a.note_title || '').toLowerCase();
+        const tb = (b.note_title || '').toLowerCase();
+        if (ta < tb) return sortOrder === 'asc' ? -1 : 1;
+        if (ta > tb) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
     });
 
     return (
@@ -96,6 +134,7 @@ const AllNotes = () => {
                         <div className="relative min-w-[140px]">
                             <select 
                                 className="w-full pl-4 pr-10 py-2.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-primary focus:border-primary appearance-none dark:text-slate-100"
+                                value={selectedSubject}
                                 onChange={(e) => setSelectedSubject(e.target.value)}
                             >
                                 <option value="All">All Subjects</option>
@@ -105,13 +144,26 @@ const AllNotes = () => {
                             </select>
                             <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-sm">expand_more</span>
                         </div>
+
+                        <div className="relative min-w-[160px]">
+                            <select
+                                className="w-full pl-4 pr-10 py-2.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-primary focus:border-primary appearance-none dark:text-slate-100"
+                                value={sortOrder}
+                                onChange={(e) => setSortOrder(e.target.value)}
+                            >
+                                <option value="none">Sort: None</option>
+                                <option value="asc">Sort by Subject (A → Z)</option>
+                                <option value="desc">Sort by Subject (Z → A)</option>
+                            </select>
+                            <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-sm">sort</span>
+                        </div>
                     </div>
                 </header>
 
                 {/* GRID DE NOTITE */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredNotes.length > 0 ? (
-                        filteredNotes.map(n => (
+                    {sortedNotes.length > 0 ? (
+                        sortedNotes.map(n => (
                             <div key={n.note_id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col hover:shadow-lg hover:shadow-purple-500/5 transition-all group relative">
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
@@ -133,7 +185,7 @@ const AllNotes = () => {
                                         {new Date(n.createdAt).toLocaleDateString()}
                                     </span>
                                     <div className="flex gap-2">
-                                        <button className="text-slate-400 hover:text-blue-500"><span className="material-symbols-outlined text-lg">edit</span></button>
+                                        <button onClick={() => navigate(`/editnote/${n.note_id}`)} className="text-slate-400 hover:text-blue-500"><span className="material-symbols-outlined text-lg">edit</span></button>
                                         <button className="text-slate-400 hover:text-red-500"><span className="material-symbols-outlined text-lg">delete</span></button>
                                     </div>
                                 </div>

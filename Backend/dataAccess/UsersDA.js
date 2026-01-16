@@ -1,5 +1,6 @@
 import Users from '../entities/Users.js';
 import Notes from '../entities/Notes.js';
+import Subjects from '../entities/Subjects.js';
 import Study_Groups from '../entities/Study_Groups.js';
 
 async function createUser(user) {
@@ -17,7 +18,11 @@ async function getUserById(id) {
 //ret un user cu toate notitele sale
 async function getUserWithNotes(id){
     return await Users.findByPk( id, {
-        include: [{model: Notes, as: 'myNotes'}]
+        include: [{
+            model: Notes,
+            as: 'myNotes',
+            include: [{ model: Subjects, as: 'subject' }]
+        }]
     });
 }
 
