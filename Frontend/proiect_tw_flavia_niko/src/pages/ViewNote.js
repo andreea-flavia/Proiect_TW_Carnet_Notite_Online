@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown'; // Importul necesar pentru ca formatarea sa functioneze
 
 const ViewNote = () => {
   const { id } = useParams();
@@ -166,9 +167,14 @@ const ViewNote = () => {
 
         <div className="flex-1 overflow-y-auto p-8">
           <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-2xl p-8 shadow">
-            {/* ADAUGAT: whitespace-pre-wrap pentru a pastra formatarea textului */}
+            {/* ADAUGAT: ReactMarkdown în interiorul containerului de text */}
             <div className="prose dark:prose-invert max-w-full whitespace-pre-wrap leading-relaxed">
-              <Highlight text={note.content} query={searchQuery} />
+              {/* Dacă există o căutare activă, folosim Highlight, altfel randăm Markdown-ul */}
+              {searchQuery ? (
+                 <Highlight text={note.content} query={searchQuery} />
+              ) : (
+                <ReactMarkdown>{note.content}</ReactMarkdown>
+              )}
             </div>
 
             {note.resources && note.resources.length > 0 && (
