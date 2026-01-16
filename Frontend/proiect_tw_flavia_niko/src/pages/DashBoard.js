@@ -50,12 +50,29 @@ const DashBoard = () => {
         title: n.title || n.note_title, 
         content: n.content || n.note_content,
         subject: n.subject || n.Subject,
-        tags: n.tags || n.Tags || [],
-        // Presupunem că backend-ul returnează is_favorite (0 sau 1 / true sau false)
-        is_favorite: n.is_favorite === 1 || n.is_favorite === true 
+        tags: n.tags || n.Tags || []
       }));
 
-      setAllNotes(normalized);
+      // Fetch user's favorites and mark notes accordingly
+      let favSet = new Set();
+      if (user_id) {
+        try {
+          const favRes = await axios.get(`http://localhost:9000/api/favorites?user_id=${user_id}`);
+          const favNotes = favRes.data || [];
+          favNotes.forEach(fn => favSet.add(Number(fn.note_id)));
+        } catch (e) {
+          console.warn('Could not fetch favorites for user', e);
+        }
+      } else {
+        // guest fallback: read guest favorites from localStorage
+        try {
+          const guest = JSON.parse(localStorage.getItem('guest_favs') || '[]');
+          guest.forEach(id => favSet.add(Number(id)));
+        } catch (e) { /* ignore */ }
+      }
+
+      const withFav = normalized.map(n => ({ ...n, is_favorite: favSet.has(Number(n.note_id)) }));
+      setAllNotes(withFav);
 
       const subjRes = await axios.get('http://localhost:9000/api/subject');
       setSubjects(subjRes.data || []);
@@ -92,17 +109,32 @@ const DashBoard = () => {
   // --- ADAUGAT: Funcția de Toggle Favorite ---
   const handleToggleFavorite = async (note_id, currentStatus) => {
     try {
-      // Trimitem noul status către backend
-      await axios.put(`http://localhost:9000/api/note/${note_id}`, {
-        is_favorite: !currentStatus
-      });
+      // If user not logged in, maintain favorites locally in localStorage
+      if (!user_id) {
+        try {
+          const guest = JSON.parse(localStorage.getItem('guest_favs') || '[]');
+          const idNum = Number(note_id);
+          if (!currentStatus) {
+            if (!guest.includes(idNum)) guest.push(idNum);
+          } else {
+            const idx = guest.indexOf(idNum);
+            if (idx !== -1) guest.splice(idx, 1);
+          }
+          localStorage.setItem('guest_favs', JSON.stringify(guest));
+          setAllNotes(prevNotes => prevNotes.map(note => note.note_id === note_id ? { ...note, is_favorite: !currentStatus } : note));
+          return;
+        } catch (e) { console.warn('guest favs error', e); }
+      }
 
-      // Actualizăm starea locală instant pentru feedback vizual
-      setAllNotes(prevNotes => 
-        prevNotes.map(note => 
-          note.note_id === note_id ? { ...note, is_favorite: !currentStatus } : note
-        )
-      );
+      const payload = { user_id };
+      if (!currentStatus) {
+        await axios.post(`http://localhost:9000/api/favorites/${note_id}`, payload);
+      } else {
+        await axios.delete(`http://localhost:9000/api/favorites/${note_id}`, { data: payload });
+      }
+
+      // Update local state to reflect persisted change
+      setAllNotes(prevNotes => prevNotes.map(note => note.note_id === note_id ? { ...note, is_favorite: !currentStatus } : note));
     } catch (err) {
       console.error("Error updating favorite status:", err);
     }
