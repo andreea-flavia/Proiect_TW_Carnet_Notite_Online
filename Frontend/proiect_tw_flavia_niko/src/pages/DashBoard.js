@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Am adăugat useNavigate aici
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const DashBoard = () => {
@@ -33,32 +33,30 @@ const DashBoard = () => {
     fetch_user_name();
   }, [user_id]);
 
-  // filter notes for current user and optional subject
   const filteredNotes = allNotes.filter(n => 
     Number(n.user_id) === Number(user_id) && 
     (selectedSubject ? (n.subject && n.subject.subject_name === selectedSubject) : true)
-);
+  );
 
   useEffect(() => {
   const fetchAll = async () => {
     try {
-      // 1. Fetch notes
       const notesRes = await axios.get('http://localhost:9000/api/note');
       
-      // Normalizam datele exact ca in AllNotes pentru a fi siguri ca avem note_id, title, etc.
       const rawData = notesRes.data || [];
       const normalized = rawData.map(n => ({
         ...n,
         note_id: n.note_id,
-        title: n.title || n.note_title, // Asiguram ambele variante
+        title: n.title || n.note_title, 
         content: n.content || n.note_content,
         subject: n.subject || n.Subject,
-        tags: n.tags || n.Tags || [] // Aduce si tag-urile
+        tags: n.tags || n.Tags || [],
+        // Presupunem că backend-ul returnează is_favorite (0 sau 1 / true sau false)
+        is_favorite: n.is_favorite === 1 || n.is_favorite === true 
       }));
 
       setAllNotes(normalized);
 
-      // 2. Fetch subjects
       const subjRes = await axios.get('http://localhost:9000/api/subject');
       setSubjects(subjRes.data || []);
     } catch (err) {
@@ -69,7 +67,6 @@ const DashBoard = () => {
   fetchAll();
 }, [user_id]);
 
-  // Highlight helper for dashboard search
   const Highlight = ({ text, query }) => {
     if (!text) return null;
     if (!query) return <>{text}</>;
@@ -92,17 +89,30 @@ const DashBoard = () => {
     );
   };
 
-  // Funcția pentru Ștergere
+  // --- ADAUGAT: Funcția de Toggle Favorite ---
+  const handleToggleFavorite = async (note_id, currentStatus) => {
+    try {
+      // Trimitem noul status către backend
+      await axios.put(`http://localhost:9000/api/note/${note_id}`, {
+        is_favorite: !currentStatus
+      });
+
+      // Actualizăm starea locală instant pentru feedback vizual
+      setAllNotes(prevNotes => 
+        prevNotes.map(note => 
+          note.note_id === note_id ? { ...note, is_favorite: !currentStatus } : note
+        )
+      );
+    } catch (err) {
+      console.error("Error updating favorite status:", err);
+    }
+  };
+
   const handleDelete = async (note_id) => {
-    // 1. Cerem confirmarea utilizatorului
     if (window.confirm("Sigur vrei să ștergi această notiță?")) {
       try {
-        // 2. Trimitem cererea DELETE către backend (portul 9000 conform codului tău)
         await axios.delete(`http://localhost:9000/api/note/${note_id}`);
-
-        // 3. Actualizăm lista pe ecran (scoatem nota ștearsă din state-ul allNotes)
         setAllNotes(prevNotes => prevNotes.filter(note => note.note_id !== note_id));
-
       } catch (err) {
         console.error("Eroare la ștergere:", err);
         alert("Nu s-a putut șterge notița. Verifică dacă serverul este pornit.");
@@ -111,13 +121,11 @@ const DashBoard = () => {
   };
 
   const handleEdit = (note_id) => {
-  // Trimitem ID-ul notiței în URL pentru ca pagina NewNotes să știe ce să încarce
-  navigate(`/editnote/${note_id}`);
-};
+    navigate(`/editnote/${note_id}`);
+  };
 
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white overflow-hidden h-screen flex">
-      {/* Sidebar */}
       <aside className="w-64 h-full hidden lg:flex flex-col border-r border-[#cfe7d3] dark:border-gray-800 bg-surface-light dark:bg-background-dark p-4 shrink-0 transition-all">
         <div className="flex items-center gap-3 mb-8 px-2 mt-2">
           <div className="flex flex-col overflow-hidden">
@@ -128,7 +136,7 @@ const DashBoard = () => {
         <nav className="flex flex-col gap-1 grow">
           <button 
               onClick={() => navigate('/dashboard')}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left"
               >
               <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">
                   dashboard
@@ -137,35 +145,34 @@ const DashBoard = () => {
             </button>
           <button 
             onClick={() => navigate('/all-notes')}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left"
           >
             <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
             <span className="text-sm font-medium">My Notes</span>
           </button>
           <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
-            <span className="material-symbols-outlined">class</span>
-            <span className="text-sm font-medium">Courses</span>
-          </a>
-          <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
             <span className="material-symbols-outlined">calendar_month</span>
             <span className="text-sm font-medium">Calendar</span>
           </a>
-          <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
+          {/* Opțiunea Favorites în Sidebar */}
+          <button 
+            onClick={() => navigate('/favorites')}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors text-left w-full"
+          >
             <span className="material-symbols-outlined">star</span>
             <span className="text-sm font-medium">Favorites</span>
-          </a>
+          </button>
           <button
             onClick={() => navigate('/ShareNotes')}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left"
           >
             <span className="material-symbols-outlined text-[22px] group-hover:text-primary">share</span>
             <span className="text-sm font-medium">Share</span>
           </button>
 
-          {/* BUTONUL ADAUGAT INAPOI */}
           <button
             onClick={() => navigate('/ShareNotesWithFriends')}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left"
           >
             <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
             <span className="text-sm font-medium">Share with Friends</span>
@@ -195,7 +202,6 @@ const DashBoard = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         <header className="h-16 shrink-0 border-b border-[#cfe7d3] dark:border-gray-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md flex items-center justify-between px-6 z-10">
           <div className="flex items-center gap-4 lg:hidden">
@@ -230,7 +236,6 @@ const DashBoard = () => {
           </div>
         </header>
 
-        {/* Partea de sus cu WELCOME */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8">
           <section className="@container">
             <div className="relative overflow-hidden rounded-2xl bg-surface-light dark:bg-surface-dark border border-[#cfe7d3] dark:border-gray-700 min-h-[200px] flex flex-col justify-end p-6 md:p-8 group shadow-sm">
@@ -247,7 +252,6 @@ const DashBoard = () => {
             </div>
           </section>
 
-          {/* LISTA Notite RECENTE */}
           <section className="mt-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
@@ -266,7 +270,6 @@ const DashBoard = () => {
           </section>
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
-            {/* Add New Placeholder Card */}
             <Link to="/newnotes" className="group flex flex-col items-center justify-center min-h-[260px] bg-background-light dark:bg-background-dark/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary dark:hover:border-primary p-5 transition-all duration-200 hover:bg-primary/5">
               <div className="h-14 w-14 rounded-full bg-white dark:bg-surface-dark shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <span className="material-symbols-outlined text-primary text-3xl">add</span>
@@ -275,7 +278,6 @@ const DashBoard = () => {
               <p className="text-sm text-text-sub dark:text-gray-500 text-center">Capture your thoughts instantly</p>
             </Link>
 
-            {/* Render user notes if available */}
             {filteredNotes && filteredNotes.length > 0 ? (
               filteredNotes
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) 
@@ -303,19 +305,32 @@ const DashBoard = () => {
                       return <p className="text-sm text-text-main/80 dark:text-gray-400 line-clamp-3 leading-relaxed"><Highlight text={preview} query={searchQuery} /></p>;
                     })()}
                   </div>
-                  <div className="ml-2 flex flex-wrap gap-2 mb-4">
-                  </div>
+                  
                   <div className="ml-2 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub dark:text-gray-500">
                     <span className="flex items-center gap-1">
                       <span className="material-symbols-outlined text-[16px]">schedule</span> 
                       {n.createdAt ? new Date(n.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : ''}
                     </span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      
+                      {/* --- ADAUGAT: Butonul Steluta lângă Edit --- */}
                       <button 
-                      onClick={(e) => { e.stopPropagation(); handleEdit(n.note_id); }}
-                      className="p-1.5 hover:bg-primary/10 rounded-md text-gray-400 hover:text-primary transition-colors" title="Edit">
+                        onClick={(e) => { e.stopPropagation(); handleToggleFavorite(n.note_id, n.is_favorite); }}
+                        className={`p-1.5 rounded-md transition-colors ${n.is_favorite ? 'text-yellow-500 hover:bg-yellow-50' : 'text-gray-400 hover:bg-gray-100'}`}
+                        title={n.is_favorite ? "Remove from Favorites" : "Add to Favorites"}
+                      >
+                        <span className={`material-symbols-outlined text-[18px] ${n.is_favorite ? 'fill-1' : ''}`}>
+                          star
+                        </span>
+                      </button>
+
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleEdit(n.note_id); }}
+                        className="p-1.5 hover:bg-primary/10 rounded-md text-gray-400 hover:text-primary transition-colors" 
+                        title="Edit"
+                      >
                         <span className="material-symbols-outlined text-[18px]">edit</span>
-                        </button>
+                      </button>
                       
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleDelete(n.note_id); }} 
@@ -324,7 +339,6 @@ const DashBoard = () => {
                       >
                         <span className="material-symbols-outlined text-[18px]">delete</span>
                       </button>
-
                     </div>
                   </div>
                 </div>
@@ -332,13 +346,10 @@ const DashBoard = () => {
             ) : (
               <div className="col-span-full text-center text-text-sub">No notes yet. Create your first note.</div>
             )}
-
-
           </section> 
-
         </div>
 
-        <button className="md:hidden fixed bottom-6 right-6 h-14 w-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-text-main active:scale-95 transition-transform z-30">
+        <button onClick={() => navigate('/newnotes')} className="md:hidden fixed bottom-6 right-6 h-14 w-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-white active:scale-95 transition-transform z-30">
           <span className="material-symbols-outlined text-3xl">add</span>
         </button>
       </main>

@@ -10,6 +10,7 @@ import AllNotesPage from './pages/AllNotes';
 import ViewNote from './pages/ViewNote';
 import ShareNotes from './pages/ShareNotes';
 import SharedNotesWithFriends from './pages/ShareNotesWithFriends';
+import Favorites from './pages/Favorites';
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
 					<Route path="/all-notes" element={<AllNotesPage />} />
 					<Route path="/sharenotes" element={<ShareNotes />} />
 					<Route path="/sharenoteswithfriends" element={<SharedNotesWithFriends />} />
+					<Route path="/favorites" element={<Favorites />} />
 			</Routes>
 		</Router>
 	);
