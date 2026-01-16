@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -11,6 +11,9 @@ const DashBoard = () => {
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [subjects, setSubjects] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [notifications, setNotifications] = useState([]);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef(null);
 
   const user_id = localStorage.getItem('user_id');
   const navigate = useNavigate();
@@ -32,6 +35,32 @@ const DashBoard = () => {
 
     fetch_user_name();
   }, [user_id]);
+
+  // Fetch notifications and poll periodically
+  useEffect(() => {
+    let mounted = true;
+    const fetchNotifs = async () => {
+      if (!user_id) return;
+      try {
+        const res = await axios.get(`http://localhost:9000/api/notifications?user_id=${user_id}`);
+        if (mounted) setNotifications(res.data || []);
+      } catch (e) {
+        console.warn('Error fetching notifications', e);
+      }
+    };
+    fetchNotifs();
+    const id = setInterval(fetchNotifs, 8000);
+    return () => { mounted = false; clearInterval(id); };
+  }, [user_id]);
+
+  // close notif dropdown on outside click
+  useEffect(() => {
+    const onDoc = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+    };
+    document.addEventListener('click', onDoc);
+    return () => document.removeEventListener('click', onDoc);
+  }, []);
 
   const filteredNotes = allNotes.filter(n => 
     Number(n.user_id) === Number(user_id) && 
@@ -195,7 +224,7 @@ const DashBoard = () => {
             <span className="text-sm font-medium">Favorites</span>
           </button>
           <button
-            onClick={() => navigate('/ShareNotes')}
+            onClick={() => navigate('/sharenotes')}
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left"
           >
             <span className="material-symbols-outlined text-[22px] group-hover:text-primary">share</span>
@@ -203,7 +232,7 @@ const DashBoard = () => {
           </button>
 
           <button
-            onClick={() => navigate('/ShareNotesWithFriends')}
+            onClick={() => navigate('/sharenoteswithfriends')}
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left"
           >
             <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
@@ -253,10 +282,37 @@ const DashBoard = () => {
             <button className="md:hidden p-2 text-text-main dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
               <span className="material-symbols-outlined">search</span>
             </button>
-            <button className="p-2 relative text-text-main dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-background-light dark:border-background-dark"></span>
-            </button>
+            <div className="relative" ref={notifRef}>
+              <button onClick={() => setNotifOpen(o => !o)} className="p-2 relative text-text-main dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+                <span className="material-symbols-outlined">notifications</span>
+                {notifications.filter(n => !n.is_read).length > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-5 px-1 rounded-full bg-red-500 text-white text-[11px] flex items-center justify-center">{notifications.filter(n => !n.is_read).length}</span>
+                )}
+              </button>
+
+              {notifOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+                  <div className="p-3">
+                    <h4 className="text-sm font-semibold">Notifications</h4>
+                  </div>
+                  <div className="max-h-64 overflow-y-auto">
+                    {notifications.length === 0 && <div className="p-3 text-sm text-text-sub">No notifications</div>}
+                    {notifications.map(n => (
+                      <div key={n.notification_id} onClick={async () => {
+                        try {
+                          await axios.put(`http://localhost:9000/api/notifications/${n.notification_id}/read`);
+                        } catch(e) { console.warn(e); }
+                        setNotifications(prev => prev.map(x => x.notification_id === n.notification_id ? { ...x, is_read: true } : x));
+                        if (n.meta && n.meta.note_id) navigate(`/note/${n.meta.note_id}`);
+                      }} className={`p-3 border-t border-gray-100 dark:border-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-surface-dark ${n.is_read ? 'opacity-60' : ''}`}>
+                        <div className="text-sm">{n.message}</div>
+                        <div className="text-xs text-text-sub mt-1">{new Date(n.createdAt).toLocaleString()}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="h-8 w-[1px] bg-gray-300 dark:bg-gray-700 mx-1" />
             <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
               <p className="hidden sm:block text-sm font-semibold text-text-main dark:text-white">

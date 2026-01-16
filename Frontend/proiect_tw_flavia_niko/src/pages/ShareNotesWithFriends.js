@@ -8,6 +8,8 @@ const SharedNotesWithFriends = () => {
     const [emailInvite, setEmailInvite] = useState('');
     const [activeNote, setActiveNote] = useState(null); 
     const [collaborators, setCollaborators] = useState([]); // State pentru colegii cu acces
+    const [ownerEmail, setOwnerEmail] = useState('');
+    const [permissionType, setPermissionType] = useState('VIEW');
     const userId = localStorage.getItem('user_id');
 
     // 1. Preluăm notițele recente
@@ -42,6 +44,20 @@ const SharedNotesWithFriends = () => {
         fetchCollaborators();
     }, [activeNote]);
 
+    // 3. Preluăm email-ul proprietarului
+    useEffect(() => {
+        const fetchOwner = async () => {
+            if (!userId) return;
+            try {
+                const res = await axios.get(`http://localhost:9000/api/user/${userId}`);
+                if (res.data?.user_mail) setOwnerEmail(res.data.user_mail);
+            } catch (err) {
+                console.error('Error fetching owner email:', err);
+            }
+        };
+        fetchOwner();
+    }, [userId]);
+
     const microNote = {
         title: "Curs Microeconomie",
         isHardcoded: true,
@@ -68,7 +84,8 @@ const SharedNotesWithFriends = () => {
             const response = await axios.post('http://localhost:9000/api/note/share', {
                 note_id: activeNote.note_id,
                 email: emailInvite,
-                owner_id: userId
+                owner_id: userId,
+                permission_type: permissionType
             });
 
             alert(`Invitația a fost trimisă cu succes către ${emailInvite}!`);
@@ -174,6 +191,16 @@ const SharedNotesWithFriends = () => {
                                                     onChange={(e) => setEmailInvite(e.target.value)}
                                                 />
                                             </div>
+                                            <div className="relative">
+                                                <select
+                                                    className="h-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary rounded-xl outline-none transition-all text-sm"
+                                                    value={permissionType}
+                                                    onChange={(e) => setPermissionType(e.target.value)}
+                                                >
+                                                    <option value="VIEW">Doar citire</option>
+                                                    <option value="EDIT">Poate edita</option>
+                                                </select>
+                                            </div>
                                             <button 
                                                 onClick={handleInvite}
                                                 className="bg-primary hover:bg-primary/90 text-white font-bold px-8 py-3 rounded-xl shadow-lg transition-all flex items-center gap-2"
@@ -201,7 +228,9 @@ const SharedNotesWithFriends = () => {
                                                         <p className="text-xs text-slate-400">{collab.email}</p>
                                                     </div>
                                                 </div>
-                                                <span className="px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 text-xs font-bold rounded-full">Acces Vizualizare</span>
+                                                <span className={`px-3 py-1 text-xs font-bold rounded-full ${collab.permission_type === 'EDIT' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30' : 'bg-green-100 text-green-700 dark:bg-green-900/30'}`}>
+                                                    {collab.permission_type === 'EDIT' ? 'Poate edita' : 'Acces Vizualizare'}
+                                                </span>
                                             </div>
                                         )) : (
                                             <p className="text-sm text-slate-400 italic">Niciun coleg adăugat încă.</p>
@@ -213,7 +242,7 @@ const SharedNotesWithFriends = () => {
                                                 <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">TU</div>
                                                 <div>
                                                     <h4 className="text-sm font-bold text-slate-800 dark:text-white">Tu (Proprietar)</h4>
-                                                    <p className="text-xs text-slate-400">student.me@stud.ase.ro</p>
+                                                    <p className="text-xs text-slate-400">{ownerEmail || '—'}</p>
                                                 </div>
                                             </div>
                                             <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full">Proprietar</span>

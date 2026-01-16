@@ -8,6 +8,7 @@ import Tags from './Tags.js';
 import Notes_Tags from './Notes_Tags.js';
 import Shared_Notes from './Shared_Notes.js';
 import Favorites from './Favorites.js';
+import Notifications from './Notifications.js';
 import Study_Groups from './Study_Groups.js';
 import Group_Members from './Group_Members.js';
 import Group_Notes from './Group_Notes.js';
@@ -54,9 +55,9 @@ function PK_Config(){
     Users.belongsToMany(Notes,{through: Shared_Notes, foreignKey: 'user_id', as:'sharedNotes'});
     Notes.belongsToMany(Users,{through: Shared_Notes, foreignKey: 'note_id', as:'sharedWith'});
 
-    // Favorites (user <-> note)
-    Users.belongsToMany(Notes, { through: Favorites, foreignKey: 'user_id', as: 'favorites' });
-    Notes.belongsToMany(Users, { through: Favorites, foreignKey: 'note_id', as: 'favoritedBy' });
+        // Favorites
+        Users.belongsToMany(Notes, { through: Favorites, foreignKey: 'user_id', as: 'favoriteNotes' });
+        Notes.belongsToMany(Users, { through: Favorites, foreignKey: 'note_id', as: 'favoritedBy' });
 
     Study_Groups.belongsToMany(Notes,{through: Group_Notes, foreignKey: 'group_id', as:'groupNotes'});
     Notes.belongsToMany(Study_Groups,{through: Group_Notes, foreignKey: 'note_id', as:'inGroups'});

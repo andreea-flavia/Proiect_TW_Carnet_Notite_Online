@@ -13,6 +13,7 @@ import resourcesRouter from './routes/ResourcesRouter.js';
 import tagsRouter from './routes/TagsRouter.js';
 import collaborationsRouter from './routes/CollaborationsRouter.js';
 import favoritesRouter from './routes/FavoritesRouter.js';
+import notificationsRouter from './routes/NotificationsRouter.js';
 import path from 'path';
 
 
@@ -37,6 +38,7 @@ app.use('/api', resourcesRouter);
 app.use('/api', tagsRouter);
 app.use('/api', collaborationsRouter);
 app.use('/api', favoritesRouter);
+app.use('/api', notificationsRouter);
 
 let port = process.env.PORT || 9000;
 // app.listen(port);

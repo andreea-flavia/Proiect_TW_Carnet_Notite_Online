@@ -1,23 +1,26 @@
 import Favorites from '../entities/Favorites.js';
 import Notes from '../entities/Notes.js';
+import Users from '../entities/Users.js';
+import Subjects from '../entities/Subjects.js';
+import Tags from '../entities/Tags.js';
 
 async function addFavorite(note_id, user_id){
-    const [record, created] = await Favorites.findOrCreate({
-        where: { note_id: Number(note_id), user_id: Number(user_id) },
-        defaults: { note_id: Number(note_id), user_id: Number(user_id) }
-    });
-    return record;
+    return await Favorites.create({ note_id, user_id });
 }
 
 async function removeFavorite(note_id, user_id){
-    return await Favorites.destroy({ where: { note_id: Number(note_id), user_id: Number(user_id) } });
+    return await Favorites.destroy({ where: { note_id, user_id } });
 }
 
 async function getFavoritesByUser(user_id){
-    const favs = await Favorites.findAll({ where: { user_id: Number(user_id) } });
-    const noteIds = favs.map(f => f.note_id);
-    if(noteIds.length === 0) return [];
-    return await Notes.findAll({ where: { note_id: noteIds }, include: [{ all: true, nested: true }] });
+    return await Notes.findAll({
+        include: [
+            { model: Users, as: 'favoritedBy', where: { user_id }, through: { attributes: [] } },
+            { model: Subjects, as: 'subject' },
+            { model: Tags, as: 'tags', through: { attributes: [] } }
+        ],
+        order: [['createdAt', 'DESC']]
+    });
 }
 
 export { addFavorite, removeFavorite, getFavoritesByUser };
