@@ -128,7 +128,7 @@ const DashBoard = () => {
             >
               <span className="material-symbols-outlined text-[22px]">description</span>
               <span>My Notes</span>
-            </button>
+          </button>
           <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
             <span className="material-symbols-outlined">class</span>
             <span className="text-sm font-medium">Courses</span>
@@ -141,6 +141,13 @@ const DashBoard = () => {
             <span className="material-symbols-outlined">star</span>
             <span className="text-sm font-medium">Favorites</span>
           </a>
+          <button
+            onClick={() => navigate('/ShareNotes')}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors"
+          >
+            <span className="material-symbols-outlined">share</span>
+            <span className="text-sm font-medium">Share</span>
+          </button>
           <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
           <p className="px-3 text-xs font-semibold text-text-sub dark:text-gray-500 uppercase tracking-wider mb-1">Tags</p>
           <a className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
