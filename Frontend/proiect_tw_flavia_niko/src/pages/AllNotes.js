@@ -7,6 +7,7 @@ const AllNotes = () => {
     const [notes, setNotes] = useState([]);
     const [subjects, setSubjects] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [headerSearch, setHeaderSearch] = useState('');
     const [selectedSubject, setSelectedSubject] = useState('All');
     const [sortOrder, setSortOrder] = useState('none');
     const [userName, setUserName] = useState('User');
@@ -87,6 +88,28 @@ const AllNotes = () => {
         }
     };
 
+    const Highlight = ({ text, query }) => {
+        if (!text) return null;
+        if (!query) return <>{text}</>;
+        const lower = text.toLowerCase();
+        const q = query.toLowerCase();
+        const parts = [];
+        let start = 0;
+        let idx = lower.indexOf(q, start);
+        while (idx !== -1) {
+            if (idx > start) parts.push({ text: text.slice(start, idx), match: false });
+            parts.push({ text: text.slice(idx, idx + q.length), match: true });
+            start = idx + q.length;
+            idx = lower.indexOf(q, start);
+        }
+        if (start < text.length) parts.push({ text: text.slice(start), match: false });
+        return (
+            <>
+                {parts.map((p, i) => p.match ? <mark key={i} className="bg-yellow-200 dark:bg-yellow-600/40">{p.text}</mark> : <span key={i}>{p.text}</span>)}
+            </>
+        );
+    };
+
     return (
         <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
             {/* SIDEBAR */}
@@ -140,7 +163,7 @@ const AllNotes = () => {
                                 className="w-full pl-10 pr-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-primary focus:border-primary dark:text-slate-100" 
                                 placeholder="Search by title..." 
                                 type="text"
-                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onChange={(e) => { setSearchTerm(e.target.value); setHeaderSearch(e.target.value); }}
                             />
                         </div>
                         <div className="relative min-w-[140px]">
@@ -188,9 +211,9 @@ const AllNotes = () => {
                                         <span className="material-symbols-outlined">more_horiz</span>
                                     </button>
                                 </div>
-                                <h3 className="text-lg font-bold mb-3 group-hover:text-primary transition-colors">{n.note_title}</h3>
+                                <h3 className="text-lg font-bold mb-3 group-hover:text-primary transition-colors"><Highlight text={n.note_title} query={headerSearch} /></h3>
                                 <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-3 leading-relaxed mb-6">
-                                    {n.note_content}
+                                    <Highlight text={n.note_content && (n.note_content.length > 200 ? n.note_content.substring(0, 197) + '...' : n.note_content)} query={headerSearch} />
                                 </p>
                                 <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
                                     <span className="text-xs text-slate-400">

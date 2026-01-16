@@ -9,6 +9,29 @@ const ViewNote = () => {
   const [userFirst, setUserFirst] = useState('');
   const [userLast, setUserLast] = useState('');
   const user_id = localStorage.getItem('user_id');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const Highlight = ({ text, query }) => {
+    if (!text) return null;
+    if (!query) return <>{text}</>;
+    const lower = text.toLowerCase();
+    const q = query.toLowerCase();
+    const parts = [];
+    let start = 0;
+    let idx = lower.indexOf(q, start);
+    while (idx !== -1) {
+      if (idx > start) parts.push({ text: text.slice(start, idx), match: false });
+      parts.push({ text: text.slice(idx, idx + q.length), match: true });
+      start = idx + q.length;
+      idx = lower.indexOf(q, start);
+    }
+    if (start < text.length) parts.push({ text: text.slice(start), match: false });
+    return (
+      <>
+        {parts.map((p, i) => (p.match ? <mark key={i} className="bg-yellow-200 dark:bg-yellow-600/40">{p.text}</mark> : <span key={i}>{p.text}</span>))}
+      </>
+    );
+  };
 
   useEffect(() => {
     const fetchNote = async () => {
@@ -103,13 +126,15 @@ const ViewNote = () => {
       </aside>
 
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+        {/* Highlight helper */}
+        {false /* placeholder to keep helper below in file scope */}
         <header className="h-16 shrink-0 border-b border-[#cfe7d3] dark:border-gray-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md flex items-center justify-between px-6 z-10">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate(-1)} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
               <span className="material-symbols-outlined">arrow_back</span>
             </button>
             <div>
-              <h2 className="text-lg font-bold">{note.title}</h2>
+              <h2 className="text-lg font-bold"><Highlight text={note.title} query={searchQuery} /></h2>
               <div className="text-xs text-slate-500">{note.subject?.subject_name || 'General'} • {new Date(note.createdAt).toLocaleString()}</div>
             </div>
           </div>
@@ -120,7 +145,7 @@ const ViewNote = () => {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span className="material-symbols-outlined text-text-sub dark:text-gray-500">search</span>
                 </div>
-                <input className="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg bg-white dark:bg-surface-dark text-text-main dark:text-white placeholder-text-sub focus:outline-none focus:ring-2 focus:ring-primary/50 sm:text-sm shadow-sm" placeholder="Search your notes..." type="text" />
+                <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg bg-white dark:bg-surface-dark text-text-main dark:text-white placeholder-text-sub focus:outline-none focus:ring-2 focus:ring-primary/50 sm:text-sm shadow-sm" placeholder="Search your notes..." type="text" />
               </div>
             </div>
 
@@ -140,11 +165,11 @@ const ViewNote = () => {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-8">
+          <div className="flex-1 overflow-y-auto p-8">
           <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-2xl p-8 shadow">
-            <div className="prose dark:prose-invert max-w-full">
-              <p>{note.content}</p>
-            </div>
+              <div className="prose dark:prose-invert max-w-full">
+                <p><Highlight text={note.content} query={searchQuery} /></p>
+              </div>
 
             {note.resources && note.resources.length > 0 && (
               <div className="mt-6">

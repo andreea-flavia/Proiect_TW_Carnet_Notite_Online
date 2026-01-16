@@ -10,6 +10,7 @@ const DashBoard = () => {
   const [allNotes, setAllNotes] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [subjects, setSubjects] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const user_id = localStorage.getItem('user_id');
   const navigate = useNavigate();
@@ -52,6 +53,29 @@ const DashBoard = () => {
 
     fetchAll();
   }, [user_id]);
+
+  // Highlight helper for dashboard search
+  const Highlight = ({ text, query }) => {
+    if (!text) return null;
+    if (!query) return <>{text}</>;
+    const lower = text.toLowerCase();
+    const q = query.toLowerCase();
+    const parts = [];
+    let start = 0;
+    let idx = lower.indexOf(q, start);
+    while (idx !== -1) {
+      if (idx > start) parts.push({ text: text.slice(start, idx), match: false });
+      parts.push({ text: text.slice(idx, idx + q.length), match: true });
+      start = idx + q.length;
+      idx = lower.indexOf(q, start);
+    }
+    if (start < text.length) parts.push({ text: text.slice(start), match: false });
+    return (
+      <>
+        {parts.map((p, i) => (p.match ? <mark key={i} className="bg-yellow-200 dark:bg-yellow-600/40">{p.text}</mark> : <span key={i}>{p.text}</span>))}
+      </>
+    );
+  };
 
   // Funcția pentru Ștergere
   const handleDelete = async (note_id) => {
@@ -161,7 +185,7 @@ const DashBoard = () => {
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <span className="material-symbols-outlined text-text-sub dark:text-gray-500 group-focus-within:text-primary transition-colors">search</span>
               </div>
-              <input className="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg leading-5 bg-white dark:bg-surface-dark text-text-main dark:text-white placeholder-text-sub dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 sm:text-sm shadow-sm" placeholder="Search your notes by keyword, tag, or subject..." type="text" />
+              <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg leading-5 bg-white dark:bg-surface-dark text-text-main dark:text-white placeholder-text-sub dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 sm:text-sm shadow-sm" placeholder="Search your notes by keyword, tag, or subject..." type="text" />
             </div>
           </div>
           <div className="flex items-center gap-4 ml-auto">
@@ -248,15 +272,23 @@ const DashBoard = () => {
                   <div className="absolute left-0 top-4 bottom-4 w-1 bg-green-500 rounded-r-md" />
                   <div className="flex justify-between items-start mb-3 ml-2">
                     <div>
-                      <span className="inline-block px-2 py-1 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[10px] font-bold uppercase tracking-wider mb-1">{n.subject ? (n.subject.subject_name || n.subject.subject_title) : 'Subject'}</span>
-                      <h3 className="text-lg font-bold text-text-main dark:text-white leading-tight">{n.title}</h3>
+                      <span className="inline-block px-2 py-1 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[10px] font-bold uppercase tracking-wider mb-1">
+                        <Highlight text={n.subject ? (n.subject.subject_name || n.subject.subject_title) : 'Subject'} query={searchQuery} />
+                      </span>
+                      <h3 className="text-lg font-bold text-text-main dark:text-white leading-tight">
+                        <Highlight text={n.title || ''} query={searchQuery} />
+                      </h3>
                     </div>
                     <button onClick={(e) => e.stopPropagation()} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-400 hover:text-primary">
                       <span className="material-symbols-outlined text-[20px]">more_vert</span>
                     </button>
                   </div>
                   <div className="flex-1 ml-2 mb-4">
-                    <p className="text-sm text-text-main/80 dark:text-gray-400 line-clamp-3 leading-relaxed">{n.content && n.content.length > 200 ? (n.content.substring(0, 197) + '...') : n.content}</p>
+                    {(() => {
+                      const full = n.content || '';
+                      const preview = full.length > 200 ? (full.substring(0, 197) + '...') : full;
+                      return <p className="text-sm text-text-main/80 dark:text-gray-400 line-clamp-3 leading-relaxed"><Highlight text={preview} query={searchQuery} /></p>;
+                    })()}
                   </div>
                   <div className="ml-2 flex flex-wrap gap-2 mb-4">
                   </div>
