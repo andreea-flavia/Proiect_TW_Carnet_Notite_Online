@@ -1,4 +1,7 @@
 import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import { 
     createNote, 
     getNotes, 
@@ -6,13 +9,53 @@ import {
     updateNote, 
     deleteNote 
 } from '../dataAccess/NotesDA.js';
+import { createResource } from '../dataAccess/ResourcesDA.js';
 
 let notesRouter = express.Router();
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(process.cwd(), 'Backend', 'uploads');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadsDir);
+    },
+    filename: function (req, file, cb) {
+        const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, unique + '-' + file.originalname);
+    }
+});
+
+const upload = multer({ storage });
+
 notesRouter.route('/note')
-    .post(async (req, res) => {
+    .post(upload.array('attachments'), async (req, res) => {
         try {
-            return res.status(201).json(await createNote(req.body));
+            const body = req.body || {};
+            const notePayload = {
+                title: body.title,
+                content: body.content,
+                user_id: body.user_id ? Number(body.user_id) : null,
+                subject_id: body.subject_id ? Number(body.subject_id) : null,
+                is_public: body.is_public === 'true' || body.is_public === true || body.is_public === '1'
+            };
+
+            const note = await createNote(notePayload);
+
+            // Save uploaded files as resources
+            if (req.files && req.files.length > 0) {
+                for (const f of req.files) {
+                    await createResource({
+                        note_id: note.note_id,
+                        resource_url: `/uploads/${f.filename}`,
+                        resource_type: 'FILE',
+                        resource_name: f.originalname
+                    });
+                }
+            }
+
+            return res.status(201).json(note);
         } catch (err) {
             return res.status(500).json({ error: err.message });
         }
@@ -32,11 +75,47 @@ notesRouter.route('/note/:id/details')
         }
     });
 
+// Support updating a note and appending new attachments
 notesRouter.route('/note/:id')
     .put(async (req, res) => {
-        const updated = await updateNote(req.params.id, req.body);
-        if (updated) return res.json(updated);
-        else return res.status(404).json({ error: 'Note not found' });
+        // Run multer only when the request is multipart/form-data
+        try {
+            if (req.is && req.is('multipart/form-data')) {
+                await new Promise((resolve, reject) => {
+                    upload.array('attachments')(req, res, (err) => {
+                        if (err) return reject(err);
+                        resolve();
+                    });
+                });
+            }
+
+            const body = req.body || {};
+            const noteData = {};
+            if (Object.prototype.hasOwnProperty.call(body, 'title')) noteData.title = body.title;
+            if (Object.prototype.hasOwnProperty.call(body, 'content')) noteData.content = body.content;
+            if (Object.prototype.hasOwnProperty.call(body, 'user_id')) noteData.user_id = body.user_id ? Number(body.user_id) : null;
+            if (Object.prototype.hasOwnProperty.call(body, 'subject_id')) noteData.subject_id = body.subject_id ? Number(body.subject_id) : null;
+            if (Object.prototype.hasOwnProperty.call(body, 'is_public')) noteData.is_public = (body.is_public === 'true' || body.is_public === true || body.is_public === '1');
+
+            const updated = await updateNote(req.params.id, noteData);
+            if (!updated) return res.status(404).json({ error: 'Note not found' });
+
+            if (req.files && req.files.length > 0) {
+                for (const f of req.files) {
+                    await createResource({
+                        note_id: Number(req.params.id),
+                        resource_url: `/uploads/${f.filename}`,
+                        resource_type: 'FILE',
+                        resource_name: f.originalname
+                    });
+                }
+            }
+
+            return res.json(updated);
+        } catch (err) {
+            console.error('Error in PUT /note/:id', err);
+            return res.status(500).json({ error: err.message });
+        }
     })
     .delete(async (req, res) => {
         const deleted = await deleteNote(req.params.id);

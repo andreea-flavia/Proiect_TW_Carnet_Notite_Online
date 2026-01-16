@@ -20,8 +20,20 @@ async function addTagToNote(noteId, tagId) {
     return null;
 }
 
+async function removeTagFromNote(noteId, tagId) {
+    const note = await Notes.findByPk(noteId);
+    const tag = await Tags.findByPk(tagId);
+
+    if (note && tag) {
+        await note.removeTag(tag);
+        return { message: `Tag-ul ${tag.tag_name} a fost scos din notita.` };
+    }
+    return null;
+}
+
 export {
     createTag,
     getTags,
     addTagToNote
+    , removeTagFromNote
 };
