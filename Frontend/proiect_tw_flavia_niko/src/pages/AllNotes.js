@@ -69,13 +69,20 @@ const AllNotes = () => {
         return matchesSearch && matchesSubject;
     });
 
-    // sortare dupa titlu notitei
+    // sortare dupa titlu sau data
     const sortedNotes = [...filteredNotes].sort((a, b) => {
         if (sortOrder === 'none') return 0;
+
+        if (sortOrder === 'date_desc' || sortOrder === 'date_asc') {
+            const ta = new Date(a.createdAt || a.updatedAt || 0).getTime();
+            const tb = new Date(b.createdAt || b.updatedAt || 0).getTime();
+            return sortOrder === 'date_desc' ? tb - ta : ta - tb;
+        }
+
         const ta = (a.note_title || '').toLowerCase();
         const tb = (b.note_title || '').toLowerCase();
-        if (ta < tb) return sortOrder === 'asc' ? -1 : 1;
-        if (ta > tb) return sortOrder === 'asc' ? 1 : -1;
+        if (ta < tb) return sortOrder === 'title_asc' ? -1 : 1;
+        if (ta > tb) return sortOrder === 'title_asc' ? 1 : -1;
         return 0;
     });
 
@@ -223,8 +230,10 @@ const AllNotes = () => {
                                 onChange={(e) => setSortOrder(e.target.value)}
                             >
                                 <option value="none">Sort: None</option>
-                                <option value="asc">Sort by Title (A → Z)</option>
-                                <option value="desc">Sort by Title (Z → A)</option>
+                                <option value="title_asc">Sort by Title (A → Z)</option>
+                                <option value="title_desc">Sort by Title (Z → A)</option>
+                                <option value="date_desc">Sort by Date (Newest)</option>
+                                <option value="date_asc">Sort by Date (Oldest)</option>
                             </select>
                             <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-sm">sort</span>
                         </div>

@@ -13,6 +13,16 @@ function NewNotes() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalSrc, setModalSrc] = useState('');
   const [modalName, setModalName] = useState('');
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [ytLoading, setYtLoading] = useState(false);
+  const [ytError, setYtError] = useState('');
+  const [ytLang, setYtLang] = useState('auto');
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkLoading, setLinkLoading] = useState(false);
+  const [linkError, setLinkError] = useState('');
+  const [linkPreview, setLinkPreview] = useState(null);
+  const [localTranscriptText, setLocalTranscriptText] = useState('');
+  const [localTranscriptError, setLocalTranscriptError] = useState('');
   const navigate = useNavigate();
 
   // --- ADAUGAT PENTRU TOOLBAR ---
@@ -138,6 +148,103 @@ function NewNotes() {
     }
   };
 
+  const handleFetchTranscript = async () => {
+    if (!youtubeUrl.trim()) {
+      setYtError('Introdu un link YouTube');
+      return;
+    }
+    setYtError('');
+    setYtLoading(true);
+    try {
+      const res = await axios.get('http://localhost:9000/api/integrations/youtube/transcript', {
+        params: { url: youtubeUrl.trim(), ...(ytLang !== 'auto' ? { lang: ytLang } : {}) }
+      });
+      const transcript = res.data?.transcript || '';
+      if (!transcript) {
+        setYtError('Nu am găsit transcript pentru acest video');
+      } else {
+        const block = `\n\n---\nTranscript YouTube:\n${transcript}\n---\n`;
+        setContent(prev => (prev || '') + block);
+      }
+    } catch (err) {
+      const apiError = err.response?.data?.error;
+      const details = err.response?.data?.details;
+      const msg = apiError ? (details ? `${apiError} (${details})` : apiError) : 'Eroare la preluarea transcriptului';
+      setYtError(msg);
+    } finally {
+      setYtLoading(false);
+    }
+  };
+
+  const handleLinkPreview = async () => {
+    if (!linkUrl.trim()) {
+      setLinkError('Introdu un link');
+      return;
+    }
+    setLinkError('');
+    setLinkLoading(true);
+    setLinkPreview(null);
+    try {
+      const res = await axios.get('http://localhost:9000/api/integrations/link/preview', {
+        params: { url: linkUrl.trim() }
+      });
+      setLinkPreview(res.data);
+    } catch (err) {
+      const msg = err.response?.data?.error || 'Eroare la preluarea metadatelor';
+      setLinkError(msg);
+    } finally {
+      setLinkLoading(false);
+    }
+  };
+
+  const handleInsertLinkPreview = () => {
+    if (!linkPreview) return;
+    const block = `\n\n---\nSursă: ${linkPreview.siteName || 'Website'}\nTitlu: ${linkPreview.title}\nLink: ${linkPreview.url}\n${linkPreview.description ? `Descriere: ${linkPreview.description}\n` : ''}---\n`;
+    setContent(prev => (prev || '') + block);
+  };
+
+  const parseTranscriptFile = async (file) => {
+    const text = await file.text();
+    if (!text) return '';
+    // Remove BOM
+    const raw = text.replace(/^\uFEFF/, '');
+    // Strip VTT header
+    const noHeader = raw.replace(/^WEBVTT[\s\S]*?\n\n/i, '');
+    // Remove timestamps and indexes
+    const lines = noHeader.split(/\r?\n/);
+    const cleaned = lines.filter(line => {
+      const t = line.trim();
+      if (!t) return false;
+      if (/^\d+$/.test(t)) return false; // index
+      if (/^\d{2}:\d{2}:\d{2}[\.,]\d{3}\s*-->/.test(t)) return false; // srt timestamp
+      if (/^\d{2}:\d{2}\.\d{3}\s*-->/.test(t)) return false; // vtt timestamp
+      return true;
+    });
+    return cleaned.join(' ').replace(/\s+/g, ' ').trim();
+  };
+
+  const handleLocalTranscriptUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLocalTranscriptError('');
+    try {
+      const parsed = await parseTranscriptFile(file);
+      if (!parsed) {
+        setLocalTranscriptError('Nu am putut extrage text din fișier');
+      } else {
+        setLocalTranscriptText(parsed);
+      }
+    } catch (err) {
+      setLocalTranscriptError('Eroare la citirea fișierului');
+    }
+  };
+
+  const handleInsertLocalTranscript = () => {
+    if (!localTranscriptText) return;
+    const block = `\n\n---\nTranscript local:\n${localTranscriptText}\n---\n`;
+    setContent(prev => (prev || '') + block);
+  };
+
   return (
     <div className="min-h-screen flex overflow-hidden bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white">
       <aside className="w-64 h-full hidden lg:flex flex-col border-r border-slate-200 dark:border-slate-800 bg-surface-light dark:bg-background-dark shrink-0">
@@ -233,6 +340,117 @@ function NewNotes() {
                   const url = prompt("Enter URL:", "https://");
                   if (url) applyFormatting('[', `](${url})`);
                 }} className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded"><span className="material-symbols-outlined">link</span></button>
+              </div>
+
+              {/* YouTube Transcript Import */}
+              <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Importă transcript YouTube</h4>
+                </div>
+                <div className="flex flex-col md:flex-row gap-3">
+                  <input
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)}
+                    className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    type="url"
+                  />
+                  <select
+                    value={ytLang}
+                    onChange={(e) => setYtLang(e.target.value)}
+                    className="px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+                  >
+                    <option value="auto">Auto</option>
+                    <option value="en">English</option>
+                    <option value="ro">Română</option>
+                    <option value="fr">Français</option>
+                    <option value="es">Español</option>
+                    <option value="de">Deutsch</option>
+                    <option value="it">Italiano</option>
+                    <option value="tr">Türkçe</option>
+                    <option value="ar">العربية</option>
+                    <option value="fa">فارسی</option>
+                  </select>
+                  <button
+                    type="button"
+                    onClick={handleFetchTranscript}
+                    disabled={ytLoading}
+                    className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg disabled:opacity-60"
+                  >
+                    {ytLoading ? 'Se preia...' : 'Importă'}
+                  </button>
+                </div>
+                {ytError && <p className="text-xs text-red-500">{ytError}</p>}
+              </div>
+
+              {/* Link Metadata Import */}
+              <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Importă link + metadate</h4>
+                </div>
+                <div className="flex flex-col md:flex-row gap-3">
+                  <input
+                    value={linkUrl}
+                    onChange={(e) => setLinkUrl(e.target.value)}
+                    className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+                    placeholder="https://..."
+                    type="url"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleLinkPreview}
+                    disabled={linkLoading}
+                    className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg disabled:opacity-60"
+                  >
+                    {linkLoading ? 'Se preia...' : 'Previzualizează'}
+                  </button>
+                </div>
+                {linkError && <p className="text-xs text-red-500">{linkError}</p>}
+                {linkPreview && (
+                  <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-white/70 dark:bg-slate-900/70 space-y-2">
+                    <p className="text-xs text-slate-400">{linkPreview.siteName || 'Website'}</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{linkPreview.title}</p>
+                    {linkPreview.description && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{linkPreview.description}</p>
+                    )}
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleInsertLinkPreview}
+                        className="px-3 py-2 text-xs font-bold bg-primary text-white rounded-md"
+                      >
+                        Adaugă în notiță
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Local Transcript Upload */}
+              <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Importă transcript local (.srt/.vtt)</h4>
+                </div>
+                <div className="flex flex-col md:flex-row gap-3">
+                  <input
+                    type="file"
+                    accept=".srt,.vtt"
+                    onChange={handleLocalTranscriptUpload}
+                    className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleInsertLocalTranscript}
+                    disabled={!localTranscriptText}
+                    className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg disabled:opacity-60"
+                  >
+                    Adaugă în notiță
+                  </button>
+                </div>
+                {localTranscriptError && <p className="text-xs text-red-500">{localTranscriptError}</p>}
+                {localTranscriptText && (
+                  <p className="text-xs text-slate-500">Transcript încărcat. Apasă „Adaugă în notiță”.</p>
+                )}
               </div>
 
               <textarea 

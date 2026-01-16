@@ -16,7 +16,10 @@
     "express": "^5.2.1",
     "multer": "^2.0.2",
     "mysql2": "^3.16.0",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "youtube-transcript": "^1.2.1",
+    "ytdl-core": "^4.11.5",
+    "@distube/ytdl-core": "^4.16.4"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
