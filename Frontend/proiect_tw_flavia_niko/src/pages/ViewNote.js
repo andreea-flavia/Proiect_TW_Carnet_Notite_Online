@@ -43,16 +43,16 @@ const ViewNote = () => {
       }
     };
     fetchNote();
-    // fetch user name for header
+    
     const fetchUser = async () => {
-      try{
-        if(!user_id) return;
+      try {
+        if (!user_id) return;
         const r = await axios.get(`http://localhost:9000/api/user/${user_id}`);
-        if(r.data){ setUserFirst(r.data.user_first_name || ''); setUserLast(r.data.user_last_name || ''); }
-      } catch(e){ }
+        if (r.data) { setUserFirst(r.data.user_first_name || ''); setUserLast(r.data.user_last_name || ''); }
+      } catch (e) { }
     }
     fetchUser();
-  }, [id]);
+  }, [id, user_id]);
 
   if (!note) return <div className="min-h-screen flex items-center justify-center">Loading note...</div>;
 
@@ -91,7 +91,6 @@ const ViewNote = () => {
             <span className="material-symbols-outlined">star</span>
             <span className="text-sm font-medium">Favorites</span>
           </button>
-
         </nav>
 
         <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
@@ -126,8 +125,6 @@ const ViewNote = () => {
       </aside>
 
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-        {/* Highlight helper */}
-        {false /* placeholder to keep helper below in file scope */}
         <header className="h-16 shrink-0 border-b border-[#cfe7d3] dark:border-gray-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md flex items-center justify-between px-6 z-10">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate(-1)} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
@@ -160,20 +157,26 @@ const ViewNote = () => {
 
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/dashboard')}>
               <p className="hidden sm:block text-sm font-semibold">{userFirst ? `${userFirst} ${userLast}` : 'Account'}</p>
-              <div className="bg-center bg-no-repeat bg-cover rounded-full h-8 w-8" />
+              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">
+                {userFirst ? userFirst[0] : 'U'}
+              </div>
             </div>
           </div>
         </header>
 
-          <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-8">
           <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-2xl p-8 shadow">
-              <div className="prose dark:prose-invert max-w-full">
-                <p><Highlight text={note.content} query={searchQuery} /></p>
-              </div>
+            {/* ADAUGAT: whitespace-pre-wrap pentru a pastra formatarea textului */}
+            <div className="prose dark:prose-invert max-w-full whitespace-pre-wrap leading-relaxed">
+              <Highlight text={note.content} query={searchQuery} />
+            </div>
 
             {note.resources && note.resources.length > 0 && (
-              <div className="mt-6">
-                <h3 className="font-bold mb-2">Resources</h3>
+              <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                <h3 className="font-bold mb-4 flex items-center gap-2">
+                   <span className="material-symbols-outlined">attach_file</span>
+                   Resources
+                </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {note.resources.map(r => {
                     const url = r.resource_url && (r.resource_url.startsWith('http') ? r.resource_url : `http://localhost:9000${r.resource_url}`);
@@ -186,7 +189,10 @@ const ViewNote = () => {
                             <p className="text-sm mt-2 text-text-sub truncate">{r.resource_name}</p>
                           </a>
                         ) : (
-                          <a className="text-primary text-sm" href={url} target="_blank" rel="noreferrer">{r.resource_name || url}</a>
+                          <a className="text-primary text-sm font-medium flex items-center gap-2" href={url} target="_blank" rel="noreferrer">
+                            <span className="material-symbols-outlined text-base">description</span>
+                            {r.resource_name || url}
+                          </a>
                         )}
                       </div>
                     );
