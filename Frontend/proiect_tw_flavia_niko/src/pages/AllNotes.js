@@ -151,17 +151,16 @@ const AllNotes = () => {
                         <span className="text-sm font-medium">My Notes</span>
                         </button>
                         <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
-                        <span className="material-symbols-outlined">class</span>
-                        <span className="text-sm font-medium">Courses</span>
-                        </a>
-                        <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
                         <span className="material-symbols-outlined">calendar_month</span>
                         <span className="text-sm font-medium">Calendar</span>
                         </a>
-                        <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
+                        <button
+                        onClick={() => navigate('/favorites')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors"
+                        >
                         <span className="material-symbols-outlined">star</span>
                         <span className="text-sm font-medium">Favorites</span>
-                        </a>
+                        </button>
                         <button
                         onClick={() => navigate('/sharenotes')}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"

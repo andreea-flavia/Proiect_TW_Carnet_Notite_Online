@@ -1,10 +1,11 @@
 
 import express from 'express';
 import { shareNote, updatePermissions, getNoteCollaborators } from '../dataAccess/SharedNotesDA.js';
-import { createGroup, addMemberToGroup, addNoteToGroup } from '../dataAccess/StudyGroupsDA.js';
+import { createGroup, addMemberToGroup, addNoteToGroup, getFullGroupDetails, removeMemberFromGroup } from '../dataAccess/StudyGroupsDA.js';
 import { getUserByEmail } from '../dataAccess/UsersDA.js';
 import Notes from '../entities/Notes.js';
 import { addNotification } from '../dataAccess/NotificationsDA.js';
+import Group_Notes from '../entities/Group_Notes.js';
 
 let collabRouter = express.Router();
 
@@ -95,16 +96,64 @@ collabRouter.route('/group').post(async (req, res) => {
 //Adaugare membru
 collabRouter.route('/group/member').post(async (req, res) => {
     try {
-        return res.status(201).json(await addMemberToGroup(req.body));
+        const { user_id, group_code } = req.body;
+        const result = await addMemberToGroup(user_id, group_code);
+        return res.status(201).json(result);
     } catch (err) {
-        return res.status(500).json({ error: err.message });
+        return res.status(400).json({ error: err.message });
+    }
+});
+
+//Stergere membru din grup
+collabRouter.route('/group/:groupId/member/:memberId').delete(async (req, res) => {
+    try {
+        const { groupId, memberId } = req.params;
+        const result = await removeMemberFromGroup(groupId, memberId);
+        return res.status(200).json({ message: "Member removed successfully", data: result });
+    } catch (err) {
+        return res.status(400).json({ error: err.message });
     }
 });
 
 //Adaugare nota in grup
-collabRouter.route('/group/note').post(async (req, res) => {
+collabRouter.post('/group/note', async (req, res) => {
     try {
-        return res.status(201).json(await addNoteToGroup(req.body));
+        const {group_id, note_id, created_by} = req.body;
+        console.log("!!! RUTA GASITA !!!", {group_id, note_id, created_by});
+
+        if (!group_id || !note_id || !created_by) {
+            return res.status(400).json({ error: "Incomplete data!" });
+        }
+
+        const newLink = await Group_Notes.create({
+            group_id: group_id,
+            note_id: note_id,
+            created_by: created_by
+        });
+
+        return res.status(201).json({
+            message: "Successfully added note to group.",
+            data: newLink
+        });
+    } catch(e){
+        console.error("Backend Error: ", e);
+
+        if(e.name === 'SequelizeUniqueConstraintError')
+            return res.status(400).json({ message: "Note already added to this group." });
+        return res.status(500).json({ message: e.message });
+    }
+});
+
+collabRouter.route('/group/:groupId/full').get(async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const groupDetails = await getFullGroupDetails(groupId);
+        
+        if (!groupDetails) {
+            return res.status(404).json({ error: "Group not found" });
+        }
+        
+        return res.status(200).json(groupDetails);
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }

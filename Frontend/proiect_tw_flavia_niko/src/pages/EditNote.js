@@ -12,6 +12,9 @@ function EditNote() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalSrc, setModalSrc] = useState('');
   const [modalName, setModalName] = useState('');
+  const [myGroups, setMyGroups] = useState([]);
+  const [showGroupModal, setShowGroupModal] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
   const navigate = useNavigate();
 
   // --- ADAUGAT PENTRU TOOLBAR ---
@@ -46,8 +49,14 @@ function EditNote() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const userId = localStorage.getItem('user_id');
         const subjRes = await axios.get('http://localhost:9000/api/subject');
         setSubjects(subjRes.data || []);
+
+        if (userId) {
+          const groupsRes = await axios.get(`http://localhost:9000/api/user/${userId}/groups`);
+          setMyGroups(groupsRes.data || []);
+        }
 
         const noteRes = await axios.get(`http://localhost:9000/api/note/${id}/details`);
         if (noteRes.data) {
@@ -66,15 +75,44 @@ function EditNote() {
   // 2. Funcția de Actualizare
   const handleUpdate = async (e) => {
     e.preventDefault();
+    const user_id = localStorage.getItem('user_id');
+    if (!user_id) {
+      alert('Trebuie sa fii logat pentru a actualiza notite');
+      return;
+    }
+
     try {
       const payload = {
         title: title.trim(),   
         content: content.trim(), 
         subject_id: Number(subjectId),
+        updated_by: Number(user_id)
       };
 
       await axios.put(`http://localhost:9000/api/note/${id}`, payload);
-      navigate('/dashboard'); 
+
+      if (selectedGroupId && id) {
+        try {
+          const groupPayload = {
+            note_id: Number(id),
+            group_id: Number(selectedGroupId),
+            created_by: Number(user_id)
+          };
+          await axios.post('http://localhost:9000/api/group/note', groupPayload);
+        } catch (e) {
+          if (e.response?.status === 400) {
+            console.warn('The note is already shared with this group.');
+          } else {
+            console.error('Error sharing note with group:', e);
+          }
+        }
+      }
+
+      if (selectedGroupId) {
+        navigate(`/group/${selectedGroupId}`);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       console.error('Error updating note', err);
       alert('Error updating note');
@@ -122,6 +160,20 @@ function EditNote() {
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => navigate('/dashboard')} className="px-4 py-2 text-sm font-semibold text-text-sub hover:text-text-main dark:hover:text-white transition-colors">Cancel</button>
+            <button
+              type="button"
+              onClick={() => setShowGroupModal(true)}
+              className={`px-5 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2 border-2 
+                ${selectedGroupId 
+                  ? 'bg-primary/10 border-primary text-primary shadow-sm' 
+                  : 'bg-transparent border-dashed border-gray-300 dark:border-gray-700 text-[#706189] dark:text-gray-400 hover:border-primary hover:text-primary'
+                }`}
+            >
+              <span className="material-symbols-outlined text-[20px]">
+                {selectedGroupId ? 'group_check' : 'group_add'}
+              </span>
+              {selectedGroupId ? 'Group Selected' : 'Share to Group'}
+            </button>
             <button type="button" onClick={handleUpdate} className="px-5 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg shadow-sm flex items-center gap-2 transition-all">
               <span className="material-symbols-outlined text-sm">save</span>
               Save Changes
@@ -217,6 +269,81 @@ function EditNote() {
             </button>
             <img src={modalSrc} alt={modalName} className="max-w-full max-h-[80vh] rounded-lg shadow-2xl shadow-black/50" />
             <p className="text-white text-center mt-4 font-medium">{modalName}</p>
+          </div>
+        </div>
+      )}
+
+      {showGroupModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-[#131118]/60 backdrop-blur-sm"
+            onClick={() => setShowGroupModal(false)}
+          ></div>
+
+          <div className="relative bg-white dark:bg-[#1f1a29] w-full max-w-md rounded-2xl shadow-2xl border border-[#dfdbe6] dark:border-[#2d243a] overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-black tracking-tight">Select Study Group</h3>
+                <button
+                  onClick={() => setShowGroupModal(false)}
+                  className="text-[#706189] hover:text-primary transition-colors"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                {myGroups.length > 0 ? (
+                  myGroups.map((group) => (
+                    <div
+                      key={group.group_id}
+                      onClick={() => setSelectedGroupId(group.group_id)}
+                      className={`p-4 rounded-xl cursor-pointer border-2 transition-all flex items-center justify-between group ${
+                        selectedGroupId === group.group_id
+                          ? 'border-primary bg-primary/5'
+                          : 'border-transparent bg-background-light dark:bg-[#2d243a] hover:border-primary/30'
+                      }`}
+                    >
+                      <div className="flex flex-col">
+                        <span className={`font-bold ${selectedGroupId === group.group_id ? 'text-primary' : ''}`}>
+                          {group.group_name}
+                        </span>
+                        <span className="text-[10px] font-mono text-[#706189] dark:text-gray-400 uppercase tracking-widest">
+                          Code: {group.group_code}
+                        </span>
+                      </div>
+                      {selectedGroupId === group.group_id && (
+                        <span className="material-symbols-outlined text-primary">check_circle</span>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-[#706189]">You are not a member of any group yet.</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 mt-8">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedGroupId(null);
+                    setShowGroupModal(false);
+                  }}
+                  className="flex-1 px-4 py-3 rounded-xl font-bold text-sm text-[#706189] hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+                >
+                  Clear Selection
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowGroupModal(false)}
+                  className="flex-1 px-4 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

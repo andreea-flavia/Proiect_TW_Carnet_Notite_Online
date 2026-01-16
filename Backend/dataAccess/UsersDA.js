@@ -40,7 +40,15 @@ async function getUserWithNotes(id){
 //ret un user cu toate grupurile de care apartine
 async function getUserWithGroups(id){
     return await Users.findByPk(id, {
-        model: Study_Groups, as: 'memberOf', through: { attribiutes: ['role']}
+        include: [
+            {
+                model: Study_Groups,
+                as: 'memberOf',
+                through: {
+                    attributes: ['role']
+                }
+            }
+        ]
     });
 }
 

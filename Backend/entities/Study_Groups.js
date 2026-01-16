@@ -16,6 +16,11 @@ const Study_Groups = db.define('Study_Groups',{
         type: Sequelize.STRING,
         allowNull: true
     },
+    group_code:{
+        type: Sequelize.STRING(10), 
+        allowNull: false,
+        unique: true
+    },
     created_by:{
         type: Sequelize.INTEGER,
         allowNull: false

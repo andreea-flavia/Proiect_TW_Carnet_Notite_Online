@@ -61,6 +61,20 @@ usersRouter.route('/user/:id/notes').get(async(req, res) => {
     return res.status(404).json({error: 'User not found'});
 });
 
+usersRouter.get('/user/:id/groups', async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const userWithGroups = await getUserWithGroups(userId);
+
+        if (!userWithGroups) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        return res.status(200).json(userWithGroups.memberOf || []);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 //ruta pentru login
 usersRouter.route('/login').post(async(req, res) => { ///user/search/user_mail
     try{

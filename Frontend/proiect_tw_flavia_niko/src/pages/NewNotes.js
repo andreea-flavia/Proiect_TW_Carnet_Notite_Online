@@ -13,6 +13,11 @@ function NewNotes() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalSrc, setModalSrc] = useState('');
   const [modalName, setModalName] = useState('');
+  const [tags, setTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [myGroups, setMyGroups] = useState([]);
+  const [showGroupModal, setShowGroupModal] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [ytLoading, setYtLoading] = useState(false);
   const [ytError, setYtError] = useState('');
@@ -57,8 +62,17 @@ function NewNotes() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const userId = localStorage.getItem('user_id');
         const subjRes = await axios.get('http://localhost:9000/api/subject');
         setSubjects(subjRes.data || []);
+
+        const tagsRes = await axios.get('http://localhost:9000/api/tag');
+        setTags(tagsRes.data || []);
+
+        if (userId) {
+          const groupsRes = await axios.get(`http://localhost:9000/api/user/${userId}/groups`);
+          setMyGroups(groupsRes.data || []);
+        }
 
         if (id) {
           const noteRes = await axios.get(`http://localhost:9000/api/note/${id}/details`);
@@ -67,6 +81,9 @@ function NewNotes() {
             setContent(noteRes.data.content || '');
             setSubjectId(noteRes.data.subject_id || '');
             setExistingResources(noteRes.data.resources || []);
+            if (noteRes.data.tags) {
+              setSelectedTags(noteRes.data.tags.map(t => t.tag_id));
+            }
           }
         }
       } catch (err) {
@@ -83,6 +100,15 @@ function NewNotes() {
 
   const removeFile = (index) => {
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleTagClick = (tagId) => {
+    setSelectedTags((prevSelected) => {
+      if (prevSelected.includes(tagId)) {
+        return prevSelected.filter((id) => id !== tagId);
+      }
+      return [...prevSelected, tagId];
+    });
   };
 
   const handleDeleteResource = async (resourceId) => {
@@ -127,21 +153,47 @@ function NewNotes() {
     formData.append('subject_id', Number(subjectId));
     formData.append('is_public', false);
 
+    formData.append('tagIds', JSON.stringify(selectedTags));
+
     selectedFiles.forEach((file) => {
       formData.append('attachments', file);
     });
 
     try {
+      let savedNoteId = id;
       if (id) {
         await axios.put(`http://localhost:9000/api/note/${id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       } else {
-        await axios.post('http://localhost:9000/api/note', formData, {
+        const res = await axios.post('http://localhost:9000/api/note', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
+        savedNoteId = res.data.note_id || res.data.id;
       }
-      navigate('/dashboard');
+
+      if (selectedGroupId && savedNoteId) {
+        try {
+          const payload = {
+            note_id: Number(savedNoteId),
+            group_id: Number(selectedGroupId),
+            created_by: Number(user_id)
+          };
+          await axios.post('http://localhost:9000/api/group/note', payload);
+        } catch (e) {
+          if (e.response?.status === 400) {
+            console.warn('Note already added to this group.');
+          } else {
+            console.error('Error adding note to group:', e);
+          }
+        }
+      }
+
+      if (selectedGroupId) {
+        navigate(`/group/${selectedGroupId}`);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       console.error('Error saving note', err);
       alert('Error saving note');
@@ -296,6 +348,20 @@ function NewNotes() {
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => navigate('/dashboard')} className="px-4 py-2 text-sm font-semibold text-text-sub hover:text-text-main dark:hover:text-white transition-colors">Cancel</button>
+            <button
+              type="button"
+              onClick={() => setShowGroupModal(true)}
+              className={`px-5 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2 border-2 
+                ${selectedGroupId 
+                  ? 'bg-primary/10 border-primary text-primary shadow-sm' 
+                  : 'bg-transparent border-dashed border-gray-300 dark:border-gray-700 text-[#706189] dark:text-gray-400 hover:border-primary hover:text-primary'
+                }`}
+            >
+              <span className="material-symbols-outlined text-[20px]">
+                {selectedGroupId ? 'group_check' : 'group_add'}
+              </span>
+              {selectedGroupId ? 'Group Selected' : 'Share to Group'}
+            </button>
             <button type="button" onClick={handleSave} className="px-5 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg shadow-sm transition-all flex items-center gap-2">
               <span className="material-symbols-outlined text-sm">save</span>
               {id ? 'Update Note' : 'Save Note'}
@@ -321,11 +387,29 @@ function NewNotes() {
                     <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400">auto_stories</span>
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Tags</label>
-                  <div className="relative">
-                    <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400">sell</span>
-                    <input className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2" placeholder="Add tags..." type="text" />
+                  <div className="flex flex-wrap gap-2 p-1">
+                    {tags.map((t) => {
+                      const isSelected = selectedTags.includes(t.tag_id);
+                      return (
+                        <button
+                          key={t.tag_id}
+                          type="button"
+                          onClick={() => handleTagClick(t.tag_id)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border
+                            ${isSelected 
+                              ? 'bg-primary border-primary text-white shadow-md shadow-primary/20 translate-y-[-1px]' 
+                              : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-primary/50'
+                            }`}
+                        >
+                          <span className="material-symbols-outlined text-[16px]">
+                            {isSelected ? 'check_circle' : 'sell'}
+                          </span>
+                          #{t.tag_name}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -529,6 +613,81 @@ function NewNotes() {
               <button onClick={closeModal} className="text-white bg-slate-800/50 px-3 py-1 rounded">Close</button>
             </div>
             <img src={modalSrc} alt={modalName} className="max-w-full max-h-[80vh] rounded shadow-lg mx-auto" />
+          </div>
+        </div>
+      )}
+
+      {showGroupModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-[#131118]/60 backdrop-blur-sm"
+            onClick={() => setShowGroupModal(false)}
+          ></div>
+
+          <div className="relative bg-white dark:bg-[#1f1a29] w-full max-w-md rounded-2xl shadow-2xl border border-[#dfdbe6] dark:border-[#2d243a] overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-black tracking-tight">Select Study Group</h3>
+                <button
+                  onClick={() => setShowGroupModal(false)}
+                  className="text-[#706189] hover:text-primary transition-colors"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                {myGroups.length > 0 ? (
+                  myGroups.map((group) => (
+                    <div
+                      key={group.group_id}
+                      onClick={() => setSelectedGroupId(group.group_id)}
+                      className={`p-4 rounded-xl cursor-pointer border-2 transition-all flex items-center justify-between group ${
+                        selectedGroupId === group.group_id
+                          ? 'border-primary bg-primary/5'
+                          : 'border-transparent bg-background-light dark:bg-[#2d243a] hover:border-primary/30'
+                      }`}
+                    >
+                      <div className="flex flex-col">
+                        <span className={`font-bold ${selectedGroupId === group.group_id ? 'text-primary' : ''}`}>
+                          {group.group_name}
+                        </span>
+                        <span className="text-[10px] font-mono text-[#706189] dark:text-gray-400 uppercase tracking-widest">
+                          Code: {group.group_code}
+                        </span>
+                      </div>
+                      {selectedGroupId === group.group_id && (
+                        <span className="material-symbols-outlined text-primary">check_circle</span>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-[#706189]">You are not a member of any group yet.</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 mt-8">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedGroupId(null);
+                    setShowGroupModal(false);
+                  }}
+                  className="flex-1 px-4 py-3 rounded-xl font-bold text-sm text-[#706189] hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+                >
+                  Clear Selection
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowGroupModal(false)}
+                  className="flex-1 px-4 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

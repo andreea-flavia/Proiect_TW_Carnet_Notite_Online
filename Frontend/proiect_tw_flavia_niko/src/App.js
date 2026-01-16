@@ -11,6 +11,8 @@ import ViewNote from './pages/ViewNote';
 import ShareNotes from './pages/ShareNotes';
 import SharedNotesWithFriends from './pages/ShareNotesWithFriends';
 import Favorites from './pages/Favorites';
+import AllStudyGroups from './pages/AllStudyGroups';
+import StudyGroupDetails from './pages/StudyGroupDetails';
 
 
 function App() {
@@ -28,6 +30,8 @@ function App() {
 					<Route path="/sharenotes" element={<ShareNotes />} />
 					<Route path="/sharenoteswithfriends" element={<SharedNotesWithFriends />} />
 					<Route path="/favorites" element={<Favorites />} />
+					<Route path="/studygroups" element={<AllStudyGroups />} />
+					<Route path="/group/:groupId" element={<StudyGroupDetails />} />
 			</Routes>
 		</Router>
 	);

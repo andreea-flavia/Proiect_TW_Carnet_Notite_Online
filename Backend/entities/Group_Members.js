@@ -5,6 +5,7 @@ const Group_Members = db.define('Group_Members', {
     group_id:{
         type: Sequelize.INTEGER,
         allowNull: false,
+        primaryKey: true,
         references: {
             model: 'Study_Groups',
             key: 'group_id'
@@ -14,6 +15,7 @@ const Group_Members = db.define('Group_Members', {
     user_id:{
         type: Sequelize.INTEGER,
         allowNull: false,
+        primaryKey: true,
         references: {
             model: 'Users',
             key: 'user_id'  
