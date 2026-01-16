@@ -63,7 +63,7 @@ const AllNotes = () => {
                     </nav>
                 </div>
                 <div className="mt-auto p-6">
-                    <button onClick={() => navigate('/new-note')} className="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all">
+                    <button onClick={() => navigate('/newnotes')} className="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all">
                         <span className="material-symbols-outlined text-[20px]">add</span>
                         New Note
                     </button>
