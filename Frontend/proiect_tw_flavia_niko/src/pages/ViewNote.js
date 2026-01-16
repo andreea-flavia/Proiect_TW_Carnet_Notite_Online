@@ -174,11 +174,24 @@ const ViewNote = () => {
             {note.resources && note.resources.length > 0 && (
               <div className="mt-6">
                 <h3 className="font-bold mb-2">Resources</h3>
-                <ul className="list-disc pl-5 text-sm text-slate-600 dark:text-slate-400">
-                  {note.resources.map(r => (
-                    <li key={r.resource_id}><a className="text-primary" href={r.resource_url} target="_blank" rel="noreferrer">{r.resource_name || r.resource_url}</a></li>
-                  ))}
-                </ul>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {note.resources.map(r => {
+                    const url = r.resource_url && (r.resource_url.startsWith('http') ? r.resource_url : `http://localhost:9000${r.resource_url}`);
+                    const isImage = r.resource_name && r.resource_name.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/);
+                    return (
+                      <div key={r.resource_id} className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+                        {isImage ? (
+                          <a href={url} target="_blank" rel="noreferrer">
+                            <img src={url} alt={r.resource_name} className="w-full max-h-64 object-contain rounded" />
+                            <p className="text-sm mt-2 text-text-sub truncate">{r.resource_name}</p>
+                          </a>
+                        ) : (
+                          <a className="text-primary text-sm" href={url} target="_blank" rel="noreferrer">{r.resource_name || url}</a>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>

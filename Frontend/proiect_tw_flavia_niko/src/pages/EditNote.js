@@ -8,6 +8,10 @@ function EditNote() {
   const [content, setContent] = useState('');
   const [subjectId, setSubjectId] = useState('');
   const [subjects, setSubjects] = useState([]);
+  const [existingResources, setExistingResources] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalSrc, setModalSrc] = useState('');
+  const [modalName, setModalName] = useState('');
   const navigate = useNavigate();
 
   // 1. Încărcăm materiile și datele notiței la deschiderea paginii
@@ -24,6 +28,7 @@ function EditNote() {
           setTitle(noteRes.data.title); 
           setContent(noteRes.data.content);
           setSubjectId(noteRes.data.subject_id);
+          setExistingResources(noteRes.data.resources || []);
         }
       } catch (err) {
         console.error('Failed to load data', err);
@@ -53,6 +58,19 @@ function EditNote() {
     }
   };
 
+  const openImage = (res) => {
+    const url = res.resource_url && (res.resource_url.startsWith('http') ? res.resource_url : `http://localhost:9000${res.resource_url}`);
+    setModalSrc(url);
+    setModalName(res.resource_name || 'image');
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setModalSrc('');
+    setModalName('');
+  };
+
   return (
     <div className="min-h-screen flex overflow-hidden bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white">
       {/* Sidebar (Păstrat exact ca în NewNotes) */}
@@ -64,7 +82,7 @@ function EditNote() {
           <h1 className="text-xl font-bold tracking-tight text-primary">StudioTeca</h1>
         </div>
         <nav className="flex flex-col gap-1 px-4 grow">
-           <button onClick={() => navigate('/')} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub hover:bg-slate-100 transition-colors">
+           <button onClick={() => navigate('/dashboard')} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub hover:bg-slate-100 transition-colors">
             <span className="material-symbols-outlined">dashboard</span>
             <span className="text-sm font-medium">Back to Dashboard</span>
           </button>
@@ -123,6 +141,26 @@ function EditNote() {
               className="w-full min-h-[500px] text-lg leading-relaxed border-none focus:ring-0 resize-none p-0 text-slate-800" 
               placeholder="Start editing your notes..."
             />
+            {existingResources && existingResources.length > 0 && (
+              <div className="mt-6">
+                <h3 className="font-bold mb-2">Attached Images</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {existingResources.map(r => {
+                    const isImage = r.resource_name && r.resource_name.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/);
+                    const url = r.resource_url && (r.resource_url.startsWith('http') ? r.resource_url : `http://localhost:9000${r.resource_url}`);
+                    if (!isImage) return null;
+                    return (
+                      <div key={r.resource_id} className="p-2 bg-slate-50 rounded">
+                        <button type="button" onClick={() => openImage(r)} className="w-full">
+                          <img src={url} alt={r.resource_name} className="w-full h-40 object-cover rounded" />
+                          <p className="text-sm mt-2 text-text-sub truncate">{r.resource_name}</p>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>

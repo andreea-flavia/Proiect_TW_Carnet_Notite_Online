@@ -120,13 +120,6 @@ const DashBoard = () => {
       {/* Sidebar */}
       <aside className="w-64 h-full hidden lg:flex flex-col border-r border-[#cfe7d3] dark:border-gray-800 bg-surface-light dark:bg-background-dark p-4 shrink-0 transition-all">
         <div className="flex items-center gap-3 mb-8 px-2 mt-2">
-          {/* <div
-            className="bg-center bg-no-repeat bg-cover rounded-full h-10 w-10 shrink-0 border border-gray-200 dark:border-gray-700"
-            data-alt="Student profile picture showing a smiling face"
-            style={{
-              backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuAw7fSMa8SMOEBhQ6S6sarYw6dq98UaYxPFw3OSVwOouPHMXcuUuXod9FOsgk2NR62cNR4O8yb1e4SkeOLFbSKCQORm9HB7ihXdeZ-yVB8HgG2o3VwxIDEvEz0SzzYqYlNLFEsUTiVOHOTavIU5V3PtytNQzrKHBeHc6LzRvE4Htwqy5hYcpc4jNDo0DRg3zPFfGMq1iYy5ibnoLFm9GSlSmxNOmPmCo9RxybQD37pgPnql-HuXdhxmWO95LPZOow6MY4MRcl7zYxEf")',
-            }}
-            /> */}
           <div className="flex flex-col overflow-hidden">
             <h1 className="text-text-main dark:text-white text-base font-bold leading-tight truncate">Ace your exams!</h1>
             <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">You are the best!</p>
@@ -168,6 +161,16 @@ const DashBoard = () => {
             <span className="material-symbols-outlined text-[22px] group-hover:text-primary">share</span>
             <span className="text-sm font-medium">Share</span>
           </button>
+
+          {/* BUTONUL ADAUGAT INAPOI */}
+          <button
+            onClick={() => navigate('/ShareNotesWithFriends')}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+          >
+            <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
+            <span className="text-sm font-medium">Share with Friends</span>
+          </button>
+
           <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
           <Link 
             to="/newnotes" 
@@ -189,10 +192,6 @@ const DashBoard = () => {
             <span className="material-symbols-outlined">settings</span>
             <span className="text-sm font-medium">Settings</span>
           </a>
-          {/* <Link to="/newnotes" className="flex w-full items-center justify-center gap-2 rounded-lg h-12 bg-primary hover:bg-[#0fd630] transition-colors text-text-main text-sm font-bold shadow-sm mt-2">
-            <span className="material-symbols-outlined text-[20px]">add</span>
-            <span>Create New Note</span>
-          </Link> */}
         </div>
       </aside>
 
@@ -318,7 +317,6 @@ const DashBoard = () => {
                         <span className="material-symbols-outlined text-[18px]">edit</span>
                         </button>
                       
-                      {/* AM ADĂUGAT onClick AICI */}
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleDelete(n.note_id); }} 
                         className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md text-gray-400 hover:text-red-500 transition-colors" 
@@ -338,7 +336,6 @@ const DashBoard = () => {
 
           </section> 
 
-          {/* ----- */}
         </div>
 
         <button className="md:hidden fixed bottom-6 right-6 h-14 w-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-text-main active:scale-95 transition-transform z-30">
