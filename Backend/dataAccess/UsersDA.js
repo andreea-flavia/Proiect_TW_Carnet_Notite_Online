@@ -2,6 +2,7 @@ import Users from '../entities/Users.js';
 import Notes from '../entities/Notes.js';
 import Subjects from '../entities/Subjects.js';
 import Study_Groups from '../entities/Study_Groups.js';
+import Tags from '../entities/Tags.js';
 
 async function createUser(user) {
     return await Users.create(user);
@@ -21,7 +22,17 @@ async function getUserWithNotes(id){
         include: [{
             model: Notes,
             as: 'myNotes',
-            include: [{ model: Subjects, as: 'subject' }]
+            include: [
+                { 
+                    model: Subjects, 
+                    as: 'subject' 
+                },
+                { 
+                    model: Tags, 
+                    as: 'tags' ,
+                    attributes: ['tag_id', 'tag_name', 'tag_desc']
+                }
+            ]
         }]
     });
 }

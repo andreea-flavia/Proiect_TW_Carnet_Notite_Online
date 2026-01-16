@@ -9,15 +9,32 @@ async function getTags() {
     return await Tags.findAll();
 }
 
-async function addTagToNote(noteId, tagId) {
-    const note = await Notes.findByPk(noteId);
-    const tag = await Tags.findByPk(tagId);
+async function addTagToNote(noteId, tagIds) {
+    // const note = await Notes.findByPk(noteId);
+    // const tag = await Tags.findByPk(tagId);
     
-    if (note && tag) {
-        await note.addTag(tag); 
-        return { message: `Tag-ul ${tag.tag_name} a fost adaugat notei.` };
+    // if (note && tag) {
+    //     await note.addTag(tag); 
+    //     return { message: `Tag-ul ${tag.tag_name} a fost adaugat notei.` };
+    // }
+    // return null;
+    try {
+        const note = await Notes.findByPk(noteId);
+        
+        if (note) {
+            // Acum tagIds va fi recunoscut pentru ca l-am pus in paranteze mai sus
+            await note.setTags(tagIds); 
+            
+            return { 
+                success: true, 
+                message: `Tag-urile au fost actualizate pentru nota ${noteId}.` 
+            };
+        }
+        return { success: false, message: "Nota nu a fost gasita." };
+    } catch (err) {
+        console.error("Error in addTagToNote:", err);
+        throw err;
     }
-    return null;
 }
 
 async function removeTagFromNote(noteId, tagId) {

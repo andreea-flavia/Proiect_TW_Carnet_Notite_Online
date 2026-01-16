@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const AllNotes = () => {
     const navigate = useNavigate();
@@ -34,8 +34,11 @@ const AllNotes = () => {
                     note_id: n.note_id,
                     note_title: n.title || n.note_title,
                     note_content: n.content || n.note_content,
-                    Subject: n.subject || n.Subject
+                    Subject: n.subject || n.Subject,
+                    tags: n.tags || n.Tags || []
                 }));
+
+                // console.log("Prima nota normalizata:", normalized[0]);
 
                 setNotes(normalized);
             } catch (err) {
@@ -115,33 +118,66 @@ const AllNotes = () => {
             {/* SIDEBAR */}
             <aside className="w-64 border-r border-slate-200 dark:border-slate-800 flex flex-col fixed inset-y-0 left-0 bg-white dark:bg-slate-900 z-10">
                 <div className="p-6 text-indigo-900 dark:text-indigo-100">
-                    <div className="flex items-center gap-3 mb-10">
-                        <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
-                            {userName[0]}
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-sm leading-tight">{userName}</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">Student Account</p>
-                        </div>
+                    <div className="flex flex-col overflow-hidden mb-8"> 
+                        <h1 className="text-text-main dark:text-white text-base font-bold leading-tight truncate">
+                            Ace your exams!
+                        </h1>
+                        <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">
+                            You are the best!
+                        </p>
                     </div>
-                    <nav className="space-y-1">
-                        <button onClick={() => navigate('/dashboard')} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                            <span className="material-symbols-outlined text-[22px]">dashboard</span>
-                            <span>Dashboard</span>
+                    <nav className="flex flex-col gap-1 grow">
+                        <button 
+                            onClick={() => navigate('/dashboard')}
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                            >
+                            <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">
+                                dashboard
+                            </span>
+                            <span className="text-sm font-medium">Dashboard</span>
+                            </button>
+                        <button 
+                        onClick={() => navigate('/all-notes')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                        >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
+                        <span className="text-sm font-medium">My Notes</span>
                         </button>
-                        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-medium">
-                            <span className="material-symbols-outlined text-[22px]">description</span>
-                            <span>My Notes</span>
+                        <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
+                        <span className="material-symbols-outlined">class</span>
+                        <span className="text-sm font-medium">Courses</span>
+                        </a>
+                        <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
+                        <span className="material-symbols-outlined">calendar_month</span>
+                        <span className="text-sm font-medium">Calendar</span>
+                        </a>
+                        <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
+                        <span className="material-symbols-outlined">star</span>
+                        <span className="text-sm font-medium">Favorites</span>
+                        </a>
+                        <button
+                        onClick={() => navigate('/ShareNotes')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                        >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">share</span>
+                        <span className="text-sm font-medium">Share</span>
                         </button>
+                        <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
+                        <Link 
+                        to="/newnotes" 
+                        className="flex w-full items-center justify-center gap-2 rounded-xl h-12 bg-primary hover:bg-[#cfe7d3] transition-all duration-300 text-white hover:text-[#2d4a31] text-sm font-bold shadow-lg shadow-primary/10 mt-2 group border border-transparent hover:border-[#b8d9bc]"
+                        >
+                        <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">
+                            add
+                        </span>
+                        <span>Create New Note</span>
+                        </Link>
+                        
                     </nav>
                 </div>
-                <div className="mt-auto p-6">
-                    <button onClick={() => navigate('/newnotes')} className="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all">
-                        <span className="material-symbols-outlined text-[20px]">add</span>
-                        New Note
-                    </button>
-                </div>
             </aside>
+
+
 
             {/* MAIN CONTENT */}
             <main className="flex-1 ml-64 p-8">
@@ -199,6 +235,7 @@ const AllNotes = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {sortedNotes.length > 0 ? (
                         sortedNotes.map(n => (
+                            
                             <div key={n.note_id} onClick={() => navigate(`/note/${n.note_id}`)} className="cursor-pointer bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col hover:shadow-lg hover:shadow-purple-500/5 transition-all group relative">
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
@@ -207,14 +244,42 @@ const AllNotes = () => {
                                             {n.Subject?.subject_name || "General"}
                                         </span>
                                     </div>
-                                    <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                                        <span className="material-symbols-outlined">more_horiz</span>
-                                    </button>
+
                                 </div>
+
                                 <h3 className="text-lg font-bold mb-3 group-hover:text-primary transition-colors"><Highlight text={n.note_title} query={headerSearch} /></h3>
                                 <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-3 leading-relaxed mb-6">
                                     <Highlight text={n.note_content && (n.note_content.length > 200 ? n.note_content.substring(0, 197) + '...' : n.note_content)} query={headerSearch} />
                                 </p>
+                                
+                                    {/* TAGS */}
+                                    <div className="flex flex-wrap gap-2 mb-4 mt-2">
+                    {n.tags && n.tags.length > 0 ? (
+                        n.tags.map((t) => {
+                            // ADAUGA ACEST LOG AICI:
+                            console.log(`Nota: ${n.note_title} | Tag: ${t.tag_name} | Culoare: "${t.tag_desc}"`);
+                            
+                            return (
+                                <span
+                                    key={t.tag_id}
+                                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-transform hover:scale-105"
+                                    style={{
+                                        backgroundColor: `${t.tag_desc}15`, 
+                                        color: t.tag_desc,
+                                        borderColor: `${t.tag_desc}40`
+                                    }}
+                                >
+                                    #{t.tag_name}
+                                </span>
+                            );
+                        })
+                    ) : (
+                        <span className="text-[10px] text-slate-300 dark:text-slate-600 italic">
+                            No tags
+                        </span>
+                    )}
+                </div>
+                                    {/*  */}
                                 <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
                                     <span className="text-xs text-slate-400">
                                         {new Date(n.createdAt).toLocaleDateString()}
@@ -224,6 +289,7 @@ const AllNotes = () => {
                                         <button onClick={(e) => handleDelete(e, n.note_id)} className="text-slate-400 hover:text-red-500"><span className="material-symbols-outlined text-lg">delete</span></button>
                                     </div>
                                 </div>
+                                
                             </div>
                         ))
                     ) : (

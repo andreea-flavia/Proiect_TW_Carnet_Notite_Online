@@ -34,25 +34,40 @@ const DashBoard = () => {
   }, [user_id]);
 
   // filter notes for current user and optional subject
-  const filteredNotes = allNotes.filter(n => Number(n.user_id) === Number(user_id) && (selectedSubject ? (n.subject && n.subject.subject_name === selectedSubject) : true));
+  const filteredNotes = allNotes.filter(n => 
+    Number(n.user_id) === Number(user_id) && 
+    (selectedSubject ? (n.subject && n.subject.subject_name === selectedSubject) : true)
+);
 
   useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        // fetch all notes (includes subject via backend getNotes)
-        const notesRes = await axios.get('http://localhost:9000/api/note');
-        setAllNotes(notesRes.data || []);
+  const fetchAll = async () => {
+    try {
+      // 1. Fetch notes
+      const notesRes = await axios.get('http://localhost:9000/api/note');
+      
+      // Normalizam datele exact ca in AllNotes pentru a fi siguri ca avem note_id, title, etc.
+      const rawData = notesRes.data || [];
+      const normalized = rawData.map(n => ({
+        ...n,
+        note_id: n.note_id,
+        title: n.title || n.note_title, // Asiguram ambele variante
+        content: n.content || n.note_content,
+        subject: n.subject || n.Subject,
+        tags: n.tags || n.Tags || [] // Aduce si tag-urile
+      }));
 
-        // fetch subjects list
-        const subjRes = await axios.get('http://localhost:9000/api/subject');
-        setSubjects(subjRes.data || []);
-      } catch (err) {
-        console.error('Error fetching notes or subjects', err);
-      }
-    };
+      setAllNotes(normalized);
 
-    fetchAll();
-  }, [user_id]);
+      // 2. Fetch subjects
+      const subjRes = await axios.get('http://localhost:9000/api/subject');
+      setSubjects(subjRes.data || []);
+    } catch (err) {
+      console.error('Error fetching notes or subjects', err);
+    }
+  };
+
+  fetchAll();
+}, [user_id]);
 
   // Highlight helper for dashboard search
   const Highlight = ({ text, query }) => {
@@ -118,16 +133,21 @@ const DashBoard = () => {
           </div>
         </div>
         <nav className="flex flex-col gap-1 grow">
-          <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/20 dark:bg-primary/10 text-text-main dark:text-white group transition-colors" href="#">
-            <span className="material-symbols-outlined text-primary dark:text-primary fill-1">dashboard</span>
-            <span className="text-sm font-medium">Dashboard</span>
-          </a>
           <button 
-              onClick={() => navigate('/all-notes')}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            >
-              <span className="material-symbols-outlined text-[22px]">description</span>
-              <span>My Notes</span>
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+              >
+              <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">
+                  dashboard
+              </span>
+              <span className="text-sm font-medium">Dashboard</span>
+            </button>
+          <button 
+            onClick={() => navigate('/all-notes')}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+          >
+            <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
+            <span className="text-sm font-medium">My Notes</span>
           </button>
           <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
             <span className="material-symbols-outlined">class</span>
@@ -143,25 +163,22 @@ const DashBoard = () => {
           </a>
           <button
             onClick={() => navigate('/ShareNotes')}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
           >
-            <span className="material-symbols-outlined">share</span>
+            <span className="material-symbols-outlined text-[22px] group-hover:text-primary">share</span>
             <span className="text-sm font-medium">Share</span>
           </button>
           <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
-          <p className="px-3 text-xs font-semibold text-text-sub dark:text-gray-500 uppercase tracking-wider mb-1">Tags</p>
-          <a className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
-            <div className="w-2 h-2 rounded-full bg-red-400" />
-            <span className="text-sm font-medium">#ExamPrep</span>
-          </a>
-          <a className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
-            <div className="w-2 h-2 rounded-full bg-blue-400" />
-            <span className="text-sm font-medium">#Homework</span>
-          </a>
-          <a className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
-            <div className="w-2 h-2 rounded-full bg-yellow-400" />
-            <span className="text-sm font-medium">#Research</span>
-          </a>
+          <Link 
+            to="/newnotes" 
+            className="flex w-full items-center justify-center gap-2 rounded-xl h-12 bg-primary hover:bg-[#cfe7d3] transition-all duration-300 text-white hover:text-[#2d4a31] text-sm font-bold shadow-lg shadow-primary/10 mt-2 group border border-transparent hover:border-[#b8d9bc]"
+          >
+            <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">
+              add
+            </span>
+            <span>Create New Note</span>
+          </Link>
+            
         </nav>
         <div className="mt-auto flex flex-col gap-2">
           <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
@@ -172,10 +189,10 @@ const DashBoard = () => {
             <span className="material-symbols-outlined">settings</span>
             <span className="text-sm font-medium">Settings</span>
           </a>
-          <Link to="/newnotes" className="flex w-full items-center justify-center gap-2 rounded-lg h-12 bg-primary hover:bg-[#0fd630] transition-colors text-text-main text-sm font-bold shadow-sm mt-2">
+          {/* <Link to="/newnotes" className="flex w-full items-center justify-center gap-2 rounded-lg h-12 bg-primary hover:bg-[#0fd630] transition-colors text-text-main text-sm font-bold shadow-sm mt-2">
             <span className="material-symbols-outlined text-[20px]">add</span>
             <span>Create New Note</span>
-          </Link>
+          </Link> */}
         </div>
       </aside>
 
@@ -246,16 +263,6 @@ const DashBoard = () => {
                   arrow_forward
                 </span>
               </button>
-              {/* <div className="flex items-center gap-3">
-               <label className="text-sm text-text-sub dark:text-gray-500 font-medium mr-1">Sort by:</label>
-              <div className="relative">
-                <select className="appearance-none bg-white dark:bg-surface-dark border border-[#cfe7d3] dark:border-gray-700 text-text-main dark:text-white py-2 pl-3 pr-8 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer">
-                  <option>Newest First</option>
-                  <option>Oldest First</option>
-                  <option>Alphabetical</option>
-                </select>
-              </div>
-              </div> */}
             </div>
           </section>
 

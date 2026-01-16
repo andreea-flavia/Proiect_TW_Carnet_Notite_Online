@@ -8,9 +8,25 @@ async function createNote(note){
 }
 
 async function getNotes() {
-    return await Notes.findAll({
-        include: [{ model: Subjects, as: 'subject' }]
-    });
+    try {
+        return await Notes.findAll({
+            include: [
+                { 
+                    model: Subjects, 
+                    as: 'subject'
+                },
+                { 
+                    model: Tags, 
+                    as: 'tags', // TREBUIE sa fie identic cu alias-ul din index.js
+                    through: { attributes: [] } // Aceasta linie curata raspunsul de datele intermediare din notes_tags
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+    } catch (err) {
+        console.error("Error fetching notes with tags:", err);
+        throw err;
+    }
 }
 
 async function getNoteFullDetails(id) {

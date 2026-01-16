@@ -10,6 +10,7 @@ function NewNotes() {
   
   const [tags, setTags] = useState([]); 
   const [tag_id, setTagId] = useState('');
+  const [selectedTags, setSelectedTags] = useState([]);
   
   const navigate = useNavigate();
 
@@ -56,8 +57,11 @@ function NewNotes() {
         content: content.trim(),
         user_id: Number(user_id),
         subject_id: Number(subjectId),
-        is_public: false
+        is_public: false,
+        tagIds: selectedTags
       };
+      
+        console.log("Trimit catre server:", payload);
       await axios.post('http://localhost:9000/api/note', payload);
       navigate('/dashboard');
     } catch (err) {
@@ -65,6 +69,18 @@ function NewNotes() {
       alert('Error saving note');
     }
   };
+
+  const handleTagClick = (tagId) => {
+  setSelectedTags((prevSelected) => {
+    if (prevSelected.includes(tagId)) {
+      // Daca ID-ul este deja in array, il scoatem (deselectam)
+      return prevSelected.filter((id) => id !== tagId);
+    } else {
+      // Altfel, il adaugam in array (selectam)
+      return [...prevSelected, tagId];
+    }
+  });
+};
 
   return (
     <div className="min-h-screen flex overflow-hidden bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white">
@@ -171,23 +187,34 @@ function NewNotes() {
                   </div>
                 </div>
                 {/* alege Tag */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Tags</label>
-                  <div className="relative">
-
-                    {/* <span className="material-symbols-outlined absolute left-3 text-slate-400 text-xl">sell</span>
-                    <input className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="Add tags (e.g. #exam, #lecture)" type="text" /> */}
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                    Tags 
+                  </label>
                   
-                    <select value={tag_id} onChange={ e => setTagId(e.target.value)} className = "w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all appearance-none">
-                      <option disabled value="">Select a tag</option>
-                      {tags.map( t => (
-                        <option key={t.tag_id} value={t.tag_id}> {t.tag_name}</option>
-                      ))}
-                    </select>
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl pointer-events-none">sell </span>
-                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl pointer-events-none">expand_more</span>
-
-
+                  <div className="flex flex-wrap gap-2 p-1">
+                    {tags.map((t) => {
+                      const isSelected = selectedTags.includes(t.tag_id);
+                      return (
+                        <button
+                          key={t.tag_id}
+                          type="button" 
+                          onClick={() => handleTagClick(t.tag_id)}
+                          className={`
+                            flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border
+                            ${isSelected 
+                              ? 'bg-primary border-primary text-white shadow-md shadow-primary/20 translate-y-[-1px]' 
+                              : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-primary/50'
+                            }
+                          `}
+                        >
+                          <span className="material-symbols-outlined text-[16px]">
+                            {isSelected ? 'check_circle' : 'sell'}
+                          </span>
+                          #{t.tag_name}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
                 {/* ------ */}

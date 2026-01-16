@@ -9,6 +9,8 @@ import {
     updateNote, 
     deleteNote 
 } from '../dataAccess/NotesDA.js';
+
+import { addTagToNote } from '../dataAccess/TagsDA.js';
 import { createResource } from '../dataAccess/ResourcesDA.js';
 
 let notesRouter = express.Router();
@@ -43,7 +45,16 @@ notesRouter.route('/note')
 
             const note = await createNote(notePayload);
 
-            // Save uploaded files as resources
+            if (note && body.tagIds) {
+                let tags = body.tagIds;
+                if (typeof tags === 'string') {
+                    try { tags = JSON.parse(tags); } catch(e) { tags = [tags]; }
+                }
+                if (Array.isArray(tags)) {
+                    await addTagToNote(note.note_id, tags);
+                }
+            }
+
             if (req.files && req.files.length > 0) {
                 for (const f of req.files) {
                     await createResource({
@@ -57,6 +68,7 @@ notesRouter.route('/note')
 
             return res.status(201).json(note);
         } catch (err) {
+            console.error("Error in POST /note:", err);
             return res.status(500).json({ error: err.message });
         }
     })
@@ -78,7 +90,6 @@ notesRouter.route('/note/:id/details')
 // Support updating a note and appending new attachments
 notesRouter.route('/note/:id')
     .put(async (req, res) => {
-        // Run multer only when the request is multipart/form-data
         try {
             if (req.is && req.is('multipart/form-data')) {
                 await new Promise((resolve, reject) => {
@@ -99,6 +110,16 @@ notesRouter.route('/note/:id')
 
             const updated = await updateNote(req.params.id, noteData);
             if (!updated) return res.status(404).json({ error: 'Note not found' });
+
+            if (body.tagIds) {
+                let tags = body.tagIds;
+                if (typeof tags === 'string') {
+                    try { tags = JSON.parse(tags); } catch(e) { tags = [tags]; }
+                }
+                if (Array.isArray(tags)) {
+                    await addTagToNote(req.params.id, tags);
+                }
+            }
 
             if (req.files && req.files.length > 0) {
                 for (const f of req.files) {
