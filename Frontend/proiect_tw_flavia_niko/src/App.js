@@ -7,6 +7,7 @@ import RegisterPage from './pages/Register';
 import NewNotes from './pages/NewNotes';
 import EditNote from './pages/EditNote';
 import AllNotesPage from './pages/AllNotes';
+import ViewNote from './pages/ViewNote';
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
 					<Route path="/dashboard" element={<DashBoard />} />
 					<Route path="/newnotes" element={<NewNotes />} />
 					<Route path="/editnote/:id" element={<EditNote />} />
+					<Route path="/note/:id" element={<ViewNote />} />
 					<Route path="/all-notes" element={<AllNotesPage />} />
 			</Routes>
 		</Router>

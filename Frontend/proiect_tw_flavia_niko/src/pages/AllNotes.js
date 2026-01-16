@@ -75,6 +75,18 @@ const AllNotes = () => {
         return 0;
     });
 
+    const handleDelete = async (e, noteId) => {
+        e.stopPropagation();
+        if (!window.confirm('Sigur vrei să ștergi această notiță?')) return;
+        try {
+            await axios.delete(`http://localhost:9000/api/note/${noteId}`);
+            setNotes(prev => prev.filter(n => n.note_id !== noteId));
+        } catch (err) {
+            console.error('Failed to delete note', err);
+            alert('Eroare la ștergere. Verifică consola.');
+        }
+    };
+
     return (
         <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
             {/* SIDEBAR */}
@@ -152,8 +164,8 @@ const AllNotes = () => {
                                 onChange={(e) => setSortOrder(e.target.value)}
                             >
                                 <option value="none">Sort: None</option>
-                                <option value="asc">Sort by Subject (A → Z)</option>
-                                <option value="desc">Sort by Subject (Z → A)</option>
+                                <option value="asc">Sort by Title (A → Z)</option>
+                                <option value="desc">Sort by Title (Z → A)</option>
                             </select>
                             <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-sm">sort</span>
                         </div>
@@ -162,9 +174,9 @@ const AllNotes = () => {
 
                 {/* GRID DE NOTITE */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {sortedNotes.length > 0 ? (
+                        {sortedNotes.length > 0 ? (
                         sortedNotes.map(n => (
-                            <div key={n.note_id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col hover:shadow-lg hover:shadow-purple-500/5 transition-all group relative">
+                            <div key={n.note_id} onClick={() => navigate(`/note/${n.note_id}`)} className="cursor-pointer bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col hover:shadow-lg hover:shadow-purple-500/5 transition-all group relative">
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
                                         <span className="material-symbols-outlined text-base">science</span>
@@ -185,8 +197,8 @@ const AllNotes = () => {
                                         {new Date(n.createdAt).toLocaleDateString()}
                                     </span>
                                     <div className="flex gap-2">
-                                        <button onClick={() => navigate(`/editnote/${n.note_id}`)} className="text-slate-400 hover:text-blue-500"><span className="material-symbols-outlined text-lg">edit</span></button>
-                                        <button className="text-slate-400 hover:text-red-500"><span className="material-symbols-outlined text-lg">delete</span></button>
+                                        <button onClick={(e) => { e.stopPropagation(); navigate(`/editnote/${n.note_id}`); }} className="text-slate-400 hover:text-blue-500"><span className="material-symbols-outlined text-lg">edit</span></button>
+                                        <button onClick={(e) => handleDelete(e, n.note_id)} className="text-slate-400 hover:text-red-500"><span className="material-symbols-outlined text-lg">delete</span></button>
                                     </div>
                                 </div>
                             </div>

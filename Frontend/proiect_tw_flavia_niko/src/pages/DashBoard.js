@@ -244,14 +244,14 @@ const DashBoard = () => {
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) 
               .slice(0, 3) 
               .map(n => (
-                <div key={n.note_id} className="group flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl border border-[#cfe7d3] dark:border-gray-700 p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1 relative">
+                <div key={n.note_id} onClick={() => navigate(`/note/${n.note_id}`)} className="cursor-pointer group flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl border border-[#cfe7d3] dark:border-gray-700 p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1 relative">
                   <div className="absolute left-0 top-4 bottom-4 w-1 bg-green-500 rounded-r-md" />
                   <div className="flex justify-between items-start mb-3 ml-2">
                     <div>
                       <span className="inline-block px-2 py-1 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[10px] font-bold uppercase tracking-wider mb-1">{n.subject ? (n.subject.subject_name || n.subject.subject_title) : 'Subject'}</span>
                       <h3 className="text-lg font-bold text-text-main dark:text-white leading-tight">{n.title}</h3>
                     </div>
-                    <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-400 hover:text-primary">
+                    <button onClick={(e) => e.stopPropagation()} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-400 hover:text-primary">
                       <span className="material-symbols-outlined text-[20px]">more_vert</span>
                     </button>
                   </div>
@@ -267,14 +267,14 @@ const DashBoard = () => {
                     </span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
-                      onClick={() => handleEdit(n.note_id)}
+                      onClick={(e) => { e.stopPropagation(); handleEdit(n.note_id); }}
                       className="p-1.5 hover:bg-primary/10 rounded-md text-gray-400 hover:text-primary transition-colors" title="Edit">
                         <span className="material-symbols-outlined text-[18px]">edit</span>
                         </button>
                       
                       {/* AM ADĂUGAT onClick AICI */}
                       <button 
-                        onClick={() => handleDelete(n.note_id)} 
+                        onClick={(e) => { e.stopPropagation(); handleDelete(n.note_id); }} 
                         className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md text-gray-400 hover:text-red-500 transition-colors" 
                         title="Delete"
                       >
