@@ -60,7 +60,7 @@ const SharedNotesWithFriends = () => {
     }, [userId]);
 
     const microNote = {
-        title: "Curs Microeconomie",
+        title: "Microeconomics Course",
         isHardcoded: true,
         img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBPBIyb4FrRRgJlCYKN8Ji77p62u1WpdqCiit3wRtLvXWcuiLdxUBSqre7LU1NwM9mtb8W2_ouXIH4Sb-sYS-LO8EueX357rROI4zy9_FHdbCftQjDpUgar34KP7XxyehN9cK3NTd_3Z4Tl1qisfVb5qal8sVl2XF3jLSfheTAvaBoh_tGkSdZNFZCwk432BVJ-DCA-spA2fVDwlDYOSAokIrDcSc_RYm_HPEu08WeRdUFd0t6cnBc2ClYa6p50pewbaILKM1HaOp1z",
         banner: "https://lh3.googleusercontent.com/aida-public/AB6AXuCaJX7Yjxs8QPyjZ-Y0WR_m_kxb4df6FIUkqtUWzrX5zyDsPvfzAUzQAZWQk8bOG3WXLG5qQK8J_txlh_Sip1SQClv6ns2t2TOS1FysBK8DFeKlcEbvPJe7B8xqj99L0xV78GWKrKsRSfb3j_gTiaCmXmKn1z21KQ9HPSBbh-hHfnAMqZfJ_mflxfOWgMFAOwSLHYNVlXS1L2OqFyqXqAvRxmXxfuQJUBi4VpdJU679sYyNHnx0n9DtjplbSHo_WX8A6SDErjxywYDZ"
@@ -71,12 +71,12 @@ const SharedNotesWithFriends = () => {
     // 3. Funcția de Invitare (Functionalitate de bază)
     const handleInvite = async () => {
         if (!emailInvite.trim()) {
-            alert("Te rugăm să introduci o adresă de email.");
+            alert("Please add a valid email.");
             return;
         }
 
         if (!activeNote) {
-            alert("Te rugăm să selectezi o notiță reală din listă pentru a invita colegi.");
+            alert("Please select a valid note.");
             return;
         }
 
@@ -175,16 +175,16 @@ const SharedNotesWithFriends = () => {
                                 <h2 className="text-xl font-extrabold tracking-tight text-primary">StudioTeca</h2>
                             </div>
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 border-2 border-primary/20 overflow-hidden">
+                        {/* <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 border-2 border-primary/20 overflow-hidden">
                             <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDz7XR7CUg0IWC4WjX0PGjIJEHi48zoTg0h6qYSfw6i9ljalToZukZKlw2HdPA6XS2v2HW1zg4iZiVESX2oz3XmERVW-whl7Uihvh6lEXNyXN7xN0khnS2pd1IxwaiGbMPftyp06SKK160vX_l01XEBz9ZOhj5r2cnMKVw5uhp3OQOtHVPPsTnSN_afGsYwup7ngQyFdOqhaE0d_RgLgx2Ck1JT--6lhNoffyzhwXel8dhE4EgsMr9_NRbrHo3N4XPjsiH6IHaDTK8F" alt="User" />
-                        </div>
+                        </div> */}
                     </header>
 
                     <main className="flex flex-1 overflow-hidden">
                         {/* Left Sidebar */}
                         <aside className="w-80 border-r border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 overflow-y-auto hidden md:flex flex-col">
                             <div className="p-6">
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Notițe Recente</h3>
+                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Recent Notes</h3>
                                 <div className="space-y-3">
                                     <div onClick={() => setActiveNote(null)} className={`group cursor-pointer p-3 rounded-xl border transition-all ${!activeNote ? 'bg-white dark:bg-background-dark border-primary/20 shadow-soft-purple sidebar-item-active' : 'border-transparent hover:bg-white'}`}>
                                         <div className="flex gap-4">
@@ -232,7 +232,7 @@ const SharedNotesWithFriends = () => {
                                                 <h1 className="text-3xl font-extrabold mb-1">{displayNote.title || displayNote.note_title}</h1>
                                                 <p className="text-white/80 text-sm flex items-center gap-2">
                                                     <span className="material-symbols-outlined text-base">group</span>
-                                                    Gestionat de tine & {collaborators.length} colegi
+                                                    Managed by you & {collaborators.length} collaborators
                                                 </p>
                                             </div>
                                         </div>
@@ -240,13 +240,13 @@ const SharedNotesWithFriends = () => {
 
                                     <div className="p-8 space-y-8">
                                         <div className="flex flex-col gap-3">
-                                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Adaugă persoane</h3>
+                                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Add people</h3>
                                             <div className="flex gap-3">
                                                 <div className="relative flex-1">
                                                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">alternate_email</span>
                                                     <input
                                                         className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary rounded-xl outline-none transition-all"
-                                                        placeholder="Introduceți email-ul colegului..."
+                                                        placeholder="Add email..."
                                                         type="email"
                                                         value={emailInvite}
                                                         onChange={(e) => setEmailInvite(e.target.value)}
@@ -258,15 +258,15 @@ const SharedNotesWithFriends = () => {
                                                         value={permissionType}
                                                         onChange={(e) => setPermissionType(e.target.value)}
                                                     >
-                                                        <option value="VIEW">Doar citire</option>
-                                                        <option value="EDIT">Poate edita</option>
+                                                        <option value="VIEW">Read Only  </option>
+                                                        <option value="EDIT">Edit</option>
                                                     </select>
                                                 </div>
                                                 <button
                                                     onClick={handleInvite}
                                                     className="bg-primary hover:bg-primary/90 text-white font-bold px-8 py-3 rounded-xl shadow-lg transition-all flex items-center gap-2"
                                                 >
-                                                    <span>Invită</span>
+                                                    <span>Invite</span>
                                                     <span className="material-symbols-outlined text-base">send</span>
                                                 </button>
                                             </div>
@@ -275,7 +275,7 @@ const SharedNotesWithFriends = () => {
                                         <hr className="border-slate-100 dark:border-slate-800" />
 
                                         <div className="space-y-4">
-                                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Colegi cu acces</h3>
+                                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Collaborators</h3>
 
                                             {/* Randare dinamică a colaboratorilor */}
                                             {collaborators.length > 0 ? collaborators.map(collab => (
@@ -294,19 +294,19 @@ const SharedNotesWithFriends = () => {
                                                     </span>
                                                 </div>
                                             )) : (
-                                                <p className="text-sm text-slate-400 italic">Niciun coleg adăugat încă.</p>
+                                                <p className="text-sm text-slate-400 italic">No collaborators added yet.</p>
                                             )}
 
                                             {/* Rândul Proprietarului (Mereu prezent) */}
                                             <div className="flex items-center justify-between p-3 rounded-xl border-2 border-dashed border-slate-100 dark:border-slate-800">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">TU</div>
+                                                    <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">Y</div>
                                                     <div>
-                                                        <h4 className="text-sm font-bold text-slate-800 dark:text-white">Tu (Proprietar)</h4>
+                                                        <h4 className="text-sm font-bold text-slate-800 dark:text-white">You (Owner)</h4>
                                                         <p className="text-xs text-slate-400">{ownerEmail || '—'}</p>
                                                     </div>
                                                 </div>
-                                                <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full">Proprietar</span>
+                                                <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full">Owner</span>
                                             </div>
                                         </div>
                                     </div>
@@ -314,10 +314,10 @@ const SharedNotesWithFriends = () => {
                                     <div className="p-8 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                                         <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
                                             <span className="material-symbols-outlined text-sm">lock</span>
-                                            Doar persoanele cu acces pot vedea această notiță
+                                            Only people with access can see this note
                                         </div>
                                         <button onClick={() => navigate('/dashboard')} className="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl text-sm transition-transform active:scale-95">
-                                            Finalizează
+                                            Finalize
                                         </button>
                                     </div>
                                 </div>
