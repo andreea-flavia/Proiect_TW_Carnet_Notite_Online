@@ -3,26 +3,25 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const DashBoard = () => {
-  const subjectPalette = [
-    { bar: 'bg-emerald-500', badge: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' },
-    { bar: 'bg-blue-500', badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' },
-    { bar: 'bg-violet-500', badge: 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300' },
-    { bar: 'bg-amber-500', badge: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' },
-    { bar: 'bg-rose-500', badge: 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300' },
-    { bar: 'bg-teal-500', badge: 'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300' },
-    { bar: 'bg-indigo-500', badge: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' },
-    { bar: 'bg-cyan-500', badge: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300' },
-    { bar: 'bg-fuchsia-500', badge: 'bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300' },
-    { bar: 'bg-lime-500', badge: 'bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-300' }
-  ];
-
-  const getSubjectColorClasses = (subjectName) => {
-    if (!subjectName) return subjectPalette[0];
-    let hash = 0;
-    for (let i = 0; i < subjectName.length; i += 1) {
-      hash = (hash * 31 + subjectName.charCodeAt(i)) >>> 0;
+  const getSubjectColorVars = (subjectName) => {
+    const name = subjectName || 'Subject';
+    const subjectIndex = subjects.findIndex(s => (s.subject_name || s.subject_title) === name);
+    let idx = subjectIndex;
+    if (idx < 0) {
+      let hash = 0;
+      for (let i = 0; i < name.length; i += 1) {
+        hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+      }
+      idx = hash % 48; // plenty of unique hues
     }
-    return subjectPalette[hash % subjectPalette.length];
+    const hue = (idx * 137.508) % 360; // golden-angle distribution
+    return {
+      '--bar-color': `hsl(${hue} 70% 45%)`,
+      '--badge-bg': `hsl(${hue} 85% 90% / 0.95)`,
+      '--badge-text': `hsl(${hue} 60% 30%)`,
+      '--badge-bg-dark': `hsl(${hue} 60% 22% / 0.7)`,
+      '--badge-text-dark': `hsl(${hue} 85% 85%)`
+    };
   };
 
   const [user_first_name, set_first_name] = useState('User');
@@ -403,13 +402,13 @@ const DashBoard = () => {
                 <div key={n.note_id} onClick={() => navigate(`/note/${n.note_id}`)} className="cursor-pointer group flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl border border-[#cfe7d3] dark:border-gray-700 p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1 relative">
                   {(() => {
                     const subjectName = n.subject ? (n.subject.subject_name || n.subject.subject_title) : '';
-                    const colors = getSubjectColorClasses(subjectName);
+                    const colorVars = getSubjectColorVars(subjectName);
                     return (
                       <>
-                        <div className={`absolute left-0 top-4 bottom-4 w-1 ${colors.bar} rounded-r-md`} />
-                        <div className="flex justify-between items-start mb-3 ml-2">
+                        <div className="absolute left-0 top-4 bottom-4 w-1 bg-[var(--bar-color)] rounded-r-md" style={colorVars} />
+                        <div className="flex justify-between items-start mb-3 ml-2" style={colorVars}>
                           <div>
-                            <span className={`inline-block px-2 py-1 rounded ${colors.badge} text-[10px] font-bold uppercase tracking-wider mb-1`}>
+                            <span className="inline-block px-2 py-1 rounded bg-[var(--badge-bg)] text-[var(--badge-text)] dark:bg-[var(--badge-bg-dark)] dark:text-[var(--badge-text-dark)] text-[10px] font-bold uppercase tracking-wider mb-1">
                               <Highlight text={subjectName || 'Subject'} query={searchQuery} />
                             </span>
                             <h3 className="text-lg font-bold text-text-main dark:text-white leading-tight">
