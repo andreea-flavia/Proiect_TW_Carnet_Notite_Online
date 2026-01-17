@@ -122,51 +122,42 @@ const fetchGroups = async () => {
                 </div>
                 </div>
                 <nav className="flex flex-col gap-1 grow">
-                <button 
-                    onClick={() => navigate('/dashboard')}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    <button 
+                        onClick={() => navigate('/dashboard')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
                     >
-                    <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">
-                        dashboard
-                    </span>
-                    <span className="text-sm font-medium">Dashboard</span>
+                        <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">dashboard</span>
+                        <span className="text-sm font-medium">Dashboard</span>
                     </button>
-                <button 
-                    onClick={() => navigate('/all-notes')}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
-                >
-                    <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
-                    <span className="text-sm font-medium">My Notes</span>
-                </button>
-                <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
-                    <span className="material-symbols-outlined">calendar_month</span>
-                    <span className="text-sm font-medium">Calendar</span>
-                </a>
-                <button
-                    onClick={() => navigate('/favorites')}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors"
-                >
-                    <span className="material-symbols-outlined">star</span>
-                    <span className="text-sm font-medium">Favorites</span>
-                </button>
-                {/* BUTONUL ADAUGAT INAPOI */}
-                <button
-                    onClick={() => navigate('/ShareNotesWithFriends')}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
-                >
-                    <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
-                    <span className="text-sm font-medium">Share with Friends</span>
-                </button>
-                
-                <button
-                    onClick={() => navigate('/studygroups')}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
-                >
-                    <span className="material-symbols-outlined text-[22px] group-hover:text-primary">groups</span>
-                    <span className="text-sm font-medium">Study Groups</span>
-                </button>
-
-                <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
+                    <button 
+                        onClick={() => navigate('/all-notes')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
+                        <span className="text-sm font-medium">My Notes</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/favorites')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">star</span>
+                        <span className="text-sm font-medium">Favorites</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/sharenoteswithfriends')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
+                        <span className="text-sm font-medium">Share with Friends</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/studygroups')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">groups</span>
+                        <span className="text-sm font-medium">Study Groups</span>
+                    </button>
+                    <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
                 </nav>
             </aside>
 

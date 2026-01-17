@@ -29,6 +29,8 @@ const DashBoard = () => {
   const [user_last_name, set_last_name] = useState('');
   const [notes, setNotes] = useState([]);
   const [allNotes, setAllNotes] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [groupsWithMembers, setGroupsWithMembers] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [subjects, setSubjects] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -126,6 +128,34 @@ const DashBoard = () => {
 
       const subjRes = await axios.get('http://localhost:9000/api/subject');
       setSubjects(subjRes.data || []);
+
+      // Fetch user's groups
+      if (user_id) {
+        try {
+          const groupsRes = await axios.get(`http://localhost:9000/api/user/${user_id}/groups`);
+          const groupsList = Array.isArray(groupsRes.data) ? groupsRes.data : [];
+          setGroups(groupsList);
+
+          // Fetch full details for each group to get member count
+          const groupsWithMembersData = await Promise.all(
+            groupsList.map(async (g) => {
+              try {
+                const fullRes = await axios.get(`http://localhost:9000/api/group/${g.group_id}/full`);
+                return {
+                  ...g,
+                  members: fullRes.data.members || []
+                };
+              } catch (e) {
+                console.warn(`Could not fetch members for group ${g.group_id}`, e);
+                return { ...g, members: [] };
+              }
+            })
+          );
+          setGroupsWithMembers(groupsWithMembersData);
+        } catch (e) {
+          console.warn('Could not fetch groups', e);
+        }
+      }
     } catch (err) {
       console.error('Error fetching notes or subjects', err);
     }
@@ -282,16 +312,6 @@ const DashBoard = () => {
           </Link>
             
         </nav>
-        <div className="mt-auto flex flex-col gap-2">
-          <a className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors ${buttonHover}`} href="#">
-            <span className="material-symbols-outlined">delete</span>
-            <span className="text-sm font-medium">Trash</span>
-          </a>
-          <a className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors ${buttonHover}`} href="#">
-            <span className="material-symbols-outlined">settings</span>
-            <span className="text-sm font-medium">Settings</span>
-          </a>
-        </div>
       </aside>
 
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
@@ -473,7 +493,61 @@ const DashBoard = () => {
             ) : (
               <div className="col-span-full text-center text-text-sub">No notes yet. Create your first note.</div>
             )}
-          </section> 
+          </section>
+
+          <section className="mt-12">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-bold text-text-main dark:text-white">Recent Study Groups</h3>
+              </div>
+              <button 
+                onClick={() => navigate('/studygroups')} 
+                className={`flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-dark transition-colors group ${buttonHover}`}
+              >
+                View All Groups
+                <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">
+                  arrow_forward
+                </span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {groupsWithMembers && groupsWithMembers.length > 0 ? (
+                groupsWithMembers.slice(0, 3).map(g => (
+                  <div 
+                    key={g.group_id} 
+                    onClick={() => navigate(`/group/${g.group_id}`)} 
+                    className="cursor-pointer group flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl border border-[#cfe7d3] dark:border-gray-700 p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1 relative"
+                  >
+                    <div className="absolute left-0 top-4 bottom-4 w-1 bg-primary rounded-r-md" />
+                    <div className="flex items-start gap-4 mb-4 ml-2">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-text-main dark:text-white leading-tight mb-1">
+                          {g.group_name}
+                        </h3>
+                        <p className="text-xs text-text-sub dark:text-gray-400 font-medium">
+                          {g.members?.length || 0} members
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex-1 ml-2 mb-4">
+                      <p className="text-sm text-text-main/80 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                        {g.group_desc || 'No description'}
+                      </p>
+                    </div>
+                    <div className="ml-2 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub dark:text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[16px]">group</span>
+                        Code: {g.group_code}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center text-text-sub">No groups yet. Join or create your first group.</div>
+              )}
+            </div>
+          </section>
         </div>
 
         <button onClick={() => navigate('/newnotes')} className={`md:hidden fixed bottom-6 right-6 h-14 w-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-white active:scale-95 transition-transform z-30 ${buttonHover}`}>

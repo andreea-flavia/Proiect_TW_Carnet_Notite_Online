@@ -1,7 +1,7 @@
 
 import express from 'express';
 import { shareNote, updatePermissions, getNoteCollaborators } from '../dataAccess/SharedNotesDA.js';
-import { createGroup, addMemberToGroup, addNoteToGroup, getFullGroupDetails, removeMemberFromGroup } from '../dataAccess/StudyGroupsDA.js';
+import { createGroup, addMemberToGroup, addNoteToGroup, getFullGroupDetails, removeMemberFromGroup, deleteGroup } from '../dataAccess/StudyGroupsDA.js';
 import { getUserByEmail } from '../dataAccess/UsersDA.js';
 import Notes from '../entities/Notes.js';
 import { addNotification } from '../dataAccess/NotificationsDA.js';
@@ -125,15 +125,20 @@ collabRouter.post('/group/note', async (req, res) => {
             return res.status(400).json({ error: "Incomplete data!" });
         }
 
-        const newLink = await Group_Notes.create({
-            group_id: group_id,
+        // const newLink = await Group_Notes.create({
+        //     group_id: group_id,
+        //     note_id: note_id,
+        //     created_by: created_by
+        // });
+        const [result, created] = await Group_Notes.upsert({
             note_id: note_id,
+            group_id: group_id,
             created_by: created_by
         });
 
-        return res.status(201).json({
-            message: "Successfully added note to group.",
-            data: newLink
+        return res.status(200).json({
+            message: created ? "Note added to group." : "Note group updated.",
+            data: result
         });
     } catch(e){
         console.error("Backend Error: ", e);
@@ -154,6 +159,17 @@ collabRouter.route('/group/:groupId/full').get(async (req, res) => {
         }
         
         return res.status(200).json(groupDetails);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+//delete group - doar pentru admin
+collabRouter.route('/group/:groupId').delete(async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        await deleteGroup(groupId);
+        return res.status(200).json({ message: "Group deleted successfully" });
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }

@@ -57,64 +57,81 @@ const GroupDetails = () => {
         }
     };
 
+    const handleLeaveGroup = async () => {
+        const userId = localStorage.getItem('user_id');
+        if(!window.confirm('Are you sure you want to leave this group?')) return;
+        try{
+            await axios.delete(`http://localhost:9000/api/group/${groupId}/member/${userId}`);
+            alert('You have left the group.');
+            navigate('/studygroups');
+        } catch(err){
+            console.error('Error leaving group:', err);
+            alert('Failed to leave group');
+        }
+    };
+
+    const handleDeleteGroup = async () => {
+        const confirmDelete = window.confirm('Are you sure you want to delete this group? This action cannot be undone.');
+        if(confirmDelete){
+            try{
+                await axios.delete(`http://localhost:9000/api/group/${groupId}`);
+                alert('Group deleted successfully.');
+                navigate('/studygroups');
+            } catch(e){
+                console.error('Error deleting group:', e);
+                alert('Failed to delete group');
+            }
+        }
+    };
+
+
     return (
         <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark text-[#131118] dark:text-white">
-            {/* Reutilizam Sidebar-ul tau aici */}
-            {/* Sidebar*/}
+            {/* Sidebar */}
             <aside className="w-64 h-full hidden lg:flex flex-col border-r border-[#cfe7d3] dark:border-gray-800 bg-surface-light dark:bg-background-dark p-4 shrink-0 transition-all">
                 <div className="flex items-center gap-3 mb-8 px-2 mt-2">
-                <div className="flex flex-col overflow-hidden">
-                    <h1 className="text-text-main dark:text-white text-base font-bold leading-tight truncate">StudioTeca</h1>
-                    <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">Ace your exams!</p>
-                </div>
+                    <div className="flex flex-col overflow-hidden">
+                        <h1 className="text-text-main dark:text-white text-base font-bold leading-tight truncate">StudioTeca</h1>
+                        <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">Ace your exams!</p>
+                    </div>
                 </div>
                 <nav className="flex flex-col gap-1 grow">
-                <button 
-                    onClick={() => navigate('/dashboard')}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    <button 
+                        onClick={() => navigate('/dashboard')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
                     >
-                    <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">
-                        dashboard
-                    </span>
-                    <span className="text-sm font-medium">Dashboard</span>
+                        <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">dashboard</span>
+                        <span className="text-sm font-medium">Dashboard</span>
                     </button>
-                <button 
-                    onClick={() => navigate('/all-notes')}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
-                >
-                    <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
-                    <span className="text-sm font-medium">My Notes</span>
-                </button>
-                <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
-                    <span className="material-symbols-outlined">class</span>
-                    <span className="text-sm font-medium">Courses</span>
-                </a>
-                <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
-                    <span className="material-symbols-outlined">calendar_month</span>
-                    <span className="text-sm font-medium">Calendar</span>
-                </a>
-                <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
-                    <span className="material-symbols-outlined">star</span>
-                    <span className="text-sm font-medium">Favorites</span>
-                </a>
-                {/* BUTONUL ADAUGAT INAPOI */}
-                <button
-                    onClick={() => navigate('/ShareNotesWithFriends')}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
-                >
-                    <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
-                    <span className="text-sm font-medium">Share with Friends</span>
-                </button>
-                
-                <button
-                    onClick={() => navigate('/studygroups')}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
-                >
-                    <span className="material-symbols-outlined text-[22px] group-hover:text-primary">groups</span>
-                    <span className="text-sm font-medium">Study Groups</span>
-                </button>
-
-                <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
+                    <button 
+                        onClick={() => navigate('/all-notes')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
+                        <span className="text-sm font-medium">My Notes</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/favorites')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">star</span>
+                        <span className="text-sm font-medium">Favorites</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/sharenoteswithfriends')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
+                        <span className="text-sm font-medium">Share with Friends</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/studygroups')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">groups</span>
+                        <span className="text-sm font-medium">Study Groups</span>
+                    </button>
+                    <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
                 </nav>
             </aside>
             
@@ -216,7 +233,7 @@ const GroupDetails = () => {
                                         
                                         {/* 1. MEMBER MANAGEMENT - List membrii cu butoane de remove */}
                                         <div className="bg-white dark:bg-[#1f1a29] p-6 rounded-xl border border-[#dfdbe6] dark:border-[#2d243a]">
-                                            <h5 className="text-sm font-bold uppercase tracking-wider text-[#706189] mb-4">Manage Members</h5>
+                                            <h5 className="text-sm font-bold uppercase tracking-wider text-[#706189] mb-4">Group Members</h5>
                                             <div className="space-y-2">
                                                 {groupData.members?.map((member) => (
                                                     <div key={member.user_id} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-[#2d243a] rounded-lg transition-colors">
@@ -265,7 +282,9 @@ const GroupDetails = () => {
                                         {/* 3. LEAVE GROUP */}
                                         <div className="bg-white dark:bg-[#1f1a29] p-6 rounded-xl border border-[#dfdbe6] dark:border-[#2d243a]">
                                             <h5 className="text-sm font-bold uppercase tracking-wider text-[#706189] mb-4">Group Actions</h5>
-                                            <button className="w-full px-4 py-2.5 border-2 border-orange-500 text-orange-500 rounded-lg font-bold text-sm hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-all">
+                                            <button 
+                                                onClick={handleLeaveGroup}
+                                                className="w-full px-4 py-2.5 border-2 border-orange-500 text-orange-500 rounded-lg font-bold text-sm hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-all">
                                                 Leave Group
                                             </button>
                                         </div>
@@ -273,8 +292,10 @@ const GroupDetails = () => {
                                         {/* 4. DELETE GROUP - Doar pentru ADMIN */}
                                         {isCurrentUserAdmin && (
                                             <div className="bg-white dark:bg-[#1f1a29] p-6 rounded-xl border-2 border-red-200 dark:border-red-900/30">
-                                                <h5 className="text-sm font-bold uppercase tracking-wider text-red-500 mb-4">🚨 Danger Zone</h5>
-                                                <button className="w-full px-4 py-2.5 bg-red-500 text-white rounded-lg font-bold text-sm hover:bg-red-600 transition-all">
+                                                <h5 className="text-sm font-bold uppercase tracking-wider text-red-500 mb-4">Delete Group</h5>
+                                                <button 
+                                                    onClick={handleDeleteGroup}
+                                                    className="w-full px-4 py-2.5 bg-red-500 text-white rounded-lg font-bold text-sm hover:bg-red-600 transition-all">
                                                     Delete Group
                                                 </button>
                                                 <p className="text-[10px] text-gray-400 mt-2">This action cannot be undone. All notes in this group will be deleted.</p>

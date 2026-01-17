@@ -89,11 +89,38 @@ async function getFullGroupDetails(groupId) {
     });
 }
 
+async function leaveGroup(groupId, userId) {
+    try{
+        return await Group_Members.destroy({
+            where: {
+                user_id: userId,
+                group_id: groupId
+            }
+        });
+    }catch (e){
+        console.error("Error leaving group:", e);
+        throw e;
+    }
+}
+
+async function deleteGroup(groupId) {
+    try{
+        return await Study_Groups.destroy({
+            where: {group_id: groupId}
+        });
+    } catch(e){
+        console.error("Error deleting group:", e);
+        throw e;
+    }
+}
+
+
 export { 
     createGroup, 
     addMemberToGroup, 
     addNoteToGroup, 
     getGroupById,
     removeMemberFromGroup,
-    getFullGroupDetails
+    getFullGroupDetails,
+    deleteGroup
 };

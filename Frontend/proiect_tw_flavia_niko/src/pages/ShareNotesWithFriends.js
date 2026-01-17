@@ -102,7 +102,57 @@ const SharedNotesWithFriends = () => {
     };
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen font-display">
+        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen font-display flex flex-col h-screen">
+            {/* Navigation Sidebar */}
+            <aside className="w-64 h-full hidden lg:flex flex-col border-r border-[#cfe7d3] dark:border-gray-800 bg-surface-light dark:bg-background-dark p-4 shrink-0 transition-all fixed inset-y-0 left-0">
+                <div className="flex items-center gap-3 mb-8 px-2 mt-2">
+                    <div className="flex flex-col overflow-hidden">
+                        <h1 className="text-text-main dark:text-white text-base font-bold leading-tight truncate">StudioTeca</h1>
+                        <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">Ace your exams!</p>
+                    </div>
+                </div>
+                <nav className="flex flex-col gap-1 grow">
+                    <button 
+                        onClick={() => navigate('/dashboard')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    >
+                        <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">dashboard</span>
+                        <span className="text-sm font-medium">Dashboard</span>
+                    </button>
+                    <button 
+                        onClick={() => navigate('/all-notes')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
+                        <span className="text-sm font-medium">My Notes</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/favorites')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">star</span>
+                        <span className="text-sm font-medium">Favorites</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/sharenoteswithfriends')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
+                        <span className="text-sm font-medium">Share with Friends</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/studygroups')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                    >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">groups</span>
+                        <span className="text-sm font-medium">Study Groups</span>
+                    </button>
+                    <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
+                </nav>
+            </aside>
+
+            {/* Main Content Area */}
+            <div className="flex flex-col h-screen ml-64 lg:ml-64 ml:0">
             <div className="flex flex-col h-screen">
                 {/* Header */}
                 <header className="flex items-center justify-between px-8 py-4 border-b border-slate-100 dark:border-slate-800 sticky top-0 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md z-50">
@@ -263,6 +313,7 @@ const SharedNotesWithFriends = () => {
                         </div>
                     </section>
                 </main>
+            </div>
             </div>
         </div>
     );

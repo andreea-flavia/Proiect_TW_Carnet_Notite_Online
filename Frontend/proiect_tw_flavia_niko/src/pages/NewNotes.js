@@ -357,8 +357,8 @@ function NewNotes() {
                   : 'bg-transparent border-dashed border-gray-300 dark:border-gray-700 text-[#706189] dark:text-gray-400 hover:border-primary hover:text-primary'
                 }`}
             >
-              <span className="material-symbols-outlined text-[20px]">
-                {selectedGroupId ? 'group_check' : 'group_add'}
+              <span className="material-symbols-outlined text-[20px]">group_add
+                {/* {selectedGroupId ? 'group_check' : 'group_add'} */}
               </span>
               {selectedGroupId ? 'Group Selected' : 'Share to Group'}
             </button>
