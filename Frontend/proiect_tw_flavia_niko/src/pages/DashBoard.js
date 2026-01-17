@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const DashBoard = () => {
+  const buttonHover = "hover:translate-x-1 transition-transform duration-200";
   const getSubjectColorVars = (subjectName) => {
     const name = subjectName || 'Subject';
     const subjectIndex = subjects.findIndex(s => (s.subject_name || s.subject_title) === name);
@@ -178,6 +179,20 @@ const DashBoard = () => {
       const payload = { user_id };
       if (!currentStatus) {
         await axios.post(`http://localhost:9000/api/favorites/${note_id}`, payload);
+        try {
+          const note = allNotes.find(n => n.note_id === note_id);
+          const message = note?.note_title ? `Added "${note.note_title}" to favorites.` : 'Added a note to favorites.';
+          const notifRes = await axios.post('http://localhost:9000/api/notifications', {
+            user_id,
+            message,
+            meta: { note_id }
+          });
+          if (notifRes?.data) {
+            setNotifications(prev => [notifRes.data, ...prev]);
+          }
+        } catch (e) {
+          console.warn('Failed to create notification', e);
+        }
       } else {
         await axios.delete(`http://localhost:9000/api/favorites/${note_id}`, { data: payload });
       }
@@ -217,7 +232,7 @@ const DashBoard = () => {
         <nav className="flex flex-col gap-1 grow">
           <button 
               onClick={() => navigate('/dashboard')}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left"
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
               >
               <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">
                   dashboard
@@ -226,34 +241,22 @@ const DashBoard = () => {
             </button>
           <button 
             onClick={() => navigate('/all-notes')}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
           >
             <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
             <span className="text-sm font-medium">My Notes</span>
           </button>
-          <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
-            <span className="material-symbols-outlined">calendar_month</span>
-            <span className="text-sm font-medium">Calendar</span>
-          </a>
           {/* Opțiunea Favorites în Sidebar */}
           <button 
             onClick={() => navigate('/favorites')}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors text-left w-full"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors text-left w-full ${buttonHover}`}
           >
             <span className="material-symbols-outlined">star</span>
             <span className="text-sm font-medium">Favorites</span>
           </button>
           <button
-            onClick={() => navigate('/sharenotes')}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left"
-          >
-            <span className="material-symbols-outlined text-[22px] group-hover:text-primary">share</span>
-            <span className="text-sm font-medium">Share</span>
-          </button>
-
-          <button
             onClick={() => navigate('/sharenoteswithfriends')}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
           >
             <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
             <span className="text-sm font-medium">Share with Friends</span>
@@ -261,7 +264,7 @@ const DashBoard = () => {
 
           <button
             onClick={() => navigate('/studygroups')}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
           >
             <span className="material-symbols-outlined text-[22px] group-hover:text-primary">groups</span>
             <span className="text-sm font-medium">Study Groups</span>
@@ -270,7 +273,7 @@ const DashBoard = () => {
           <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
           <Link 
             to="/newnotes" 
-            className="flex w-full items-center justify-center gap-2 rounded-xl h-12 bg-primary hover:bg-[#cfe7d3] transition-all duration-300 text-white hover:text-[#2d4a31] text-sm font-bold shadow-lg shadow-primary/10 mt-2 group border border-transparent hover:border-[#b8d9bc]"
+            className={`flex w-full items-center justify-center gap-2 rounded-xl h-12 bg-primary hover:bg-[#cfe7d3] transition-all duration-300 text-white hover:text-[#2d4a31] text-sm font-bold shadow-lg shadow-primary/10 mt-2 group border border-transparent hover:border-[#b8d9bc] ${buttonHover}`}
           >
             <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">
               add
@@ -280,11 +283,11 @@ const DashBoard = () => {
             
         </nav>
         <div className="mt-auto flex flex-col gap-2">
-          <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
+          <a className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors ${buttonHover}`} href="#">
             <span className="material-symbols-outlined">delete</span>
             <span className="text-sm font-medium">Trash</span>
           </a>
-          <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
+          <a className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors ${buttonHover}`} href="#">
             <span className="material-symbols-outlined">settings</span>
             <span className="text-sm font-medium">Settings</span>
           </a>
@@ -294,7 +297,7 @@ const DashBoard = () => {
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         <header className="h-16 shrink-0 border-b border-[#cfe7d3] dark:border-gray-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md flex items-center justify-between px-6 z-10">
           <div className="flex items-center gap-4 lg:hidden">
-            <button className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800">
+            <button className={`p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 ${buttonHover}`}>
               <span className="material-symbols-outlined">menu</span>
             </button>
           </div>
@@ -307,11 +310,11 @@ const DashBoard = () => {
             </div>
           </div>
           <div className="flex items-center gap-4 ml-auto">
-            <button className="md:hidden p-2 text-text-main dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+            <button className={`md:hidden p-2 text-text-main dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full ${buttonHover}`}>
               <span className="material-symbols-outlined">search</span>
             </button>
             <div className="relative" ref={notifRef}>
-              <button onClick={() => setNotifOpen(o => !o)} className="p-2 relative text-text-main dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+              <button onClick={() => setNotifOpen(o => !o)} className={`p-2 relative text-text-main dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors ${buttonHover}`}>
                 <span className="material-symbols-outlined">notifications</span>
                 {notifications.filter(n => !n.is_read).length > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[18px] h-5 px-1 rounded-full bg-red-500 text-white text-[11px] flex items-center justify-center">{notifications.filter(n => !n.is_read).length}</span>
@@ -375,7 +378,7 @@ const DashBoard = () => {
               </div>
               <button 
                 onClick={() => navigate('/all-notes')} 
-                className="flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-dark transition-colors group"
+                className={`flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-dark transition-colors group ${buttonHover}`}
               >
                 View All Notes
                 <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">
@@ -386,7 +389,7 @@ const DashBoard = () => {
           </section>
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
-            <Link to="/newnotes" className="group flex flex-col items-center justify-center min-h-[260px] bg-background-light dark:bg-background-dark/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary dark:hover:border-primary p-5 transition-all duration-200 hover:bg-primary/5">
+            <Link to="/newnotes" className={`group flex flex-col items-center justify-center min-h-[260px] bg-background-light dark:bg-background-dark/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary dark:hover:border-primary p-5 transition-all duration-200 hover:bg-primary/5 ${buttonHover}`}>
               <div className="h-14 w-14 rounded-full bg-white dark:bg-surface-dark shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <span className="material-symbols-outlined text-primary text-3xl">add</span>
               </div>
@@ -415,7 +418,7 @@ const DashBoard = () => {
                               <Highlight text={n.title || ''} query={searchQuery} />
                             </h3>
                           </div>
-                          <button onClick={(e) => e.stopPropagation()} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-400 hover:text-primary">
+                          <button onClick={(e) => e.stopPropagation()} className={`opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-400 hover:text-primary ${buttonHover}`}>
                             <span className="material-symbols-outlined text-[20px]">more_vert</span>
                           </button>
                         </div>
@@ -440,7 +443,7 @@ const DashBoard = () => {
                       {/* --- ADAUGAT: Butonul Steluta lângă Edit --- */}
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleToggleFavorite(n.note_id, n.is_favorite); }}
-                        className={`p-1.5 rounded-md transition-colors ${n.is_favorite ? 'text-yellow-500 hover:bg-yellow-50' : 'text-gray-400 hover:bg-gray-100'}`}
+                        className={`p-1.5 rounded-md transition-colors ${n.is_favorite ? 'text-yellow-500 hover:bg-yellow-50' : 'text-gray-400 hover:bg-gray-100'} ${buttonHover}`}
                         title={n.is_favorite ? "Remove from Favorites" : "Add to Favorites"}
                       >
                         <span className={`material-symbols-outlined text-[18px] ${n.is_favorite ? 'fill-1' : ''}`}>
@@ -450,7 +453,7 @@ const DashBoard = () => {
 
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleEdit(n.note_id); }}
-                        className="p-1.5 hover:bg-primary/10 rounded-md text-gray-400 hover:text-primary transition-colors" 
+                        className={`p-1.5 hover:bg-primary/10 rounded-md text-gray-400 hover:text-primary transition-colors ${buttonHover}`} 
                         title="Edit"
                       >
                         <span className="material-symbols-outlined text-[18px]">edit</span>
@@ -458,7 +461,7 @@ const DashBoard = () => {
                       
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleDelete(n.note_id); }} 
-                        className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md text-gray-400 hover:text-red-500 transition-colors" 
+                        className={`p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md text-gray-400 hover:text-red-500 transition-colors ${buttonHover}`} 
                         title="Delete"
                       >
                         <span className="material-symbols-outlined text-[18px]">delete</span>
@@ -473,7 +476,7 @@ const DashBoard = () => {
           </section> 
         </div>
 
-        <button onClick={() => navigate('/newnotes')} className="md:hidden fixed bottom-6 right-6 h-14 w-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-white active:scale-95 transition-transform z-30">
+        <button onClick={() => navigate('/newnotes')} className={`md:hidden fixed bottom-6 right-6 h-14 w-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-white active:scale-95 transition-transform z-30 ${buttonHover}`}>
           <span className="material-symbols-outlined text-3xl">add</span>
         </button>
       </main>

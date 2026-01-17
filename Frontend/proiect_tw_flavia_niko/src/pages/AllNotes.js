@@ -150,10 +150,6 @@ const AllNotes = () => {
                         <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
                         <span className="text-sm font-medium">My Notes</span>
                         </button>
-                        <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors" href="#">
-                        <span className="material-symbols-outlined">calendar_month</span>
-                        <span className="text-sm font-medium">Calendar</span>
-                        </a>
                         <button
                         onClick={() => navigate('/favorites')}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors"
@@ -162,11 +158,18 @@ const AllNotes = () => {
                         <span className="text-sm font-medium">Favorites</span>
                         </button>
                         <button
-                        onClick={() => navigate('/sharenotes')}
+                        onClick={() => navigate('/sharenoteswithfriends')}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
                         >
-                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">share</span>
-                        <span className="text-sm font-medium">Share</span>
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
+                        <span className="text-sm font-medium">Share with Friends</span>
+                        </button>
+                        <button
+                        onClick={() => navigate('/studygroups')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
+                        >
+                        <span className="material-symbols-outlined text-[22px] group-hover:text-primary">groups</span>
+                        <span className="text-sm font-medium">Study Groups</span>
                         </button>
                         <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
                         <Link 

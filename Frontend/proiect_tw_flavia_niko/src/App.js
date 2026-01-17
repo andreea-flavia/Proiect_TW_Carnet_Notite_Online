@@ -8,7 +8,6 @@ import NewNotes from './pages/NewNotes';
 import EditNote from './pages/EditNote';
 import AllNotesPage from './pages/AllNotes';
 import ViewNote from './pages/ViewNote';
-import ShareNotes from './pages/ShareNotes';
 import SharedNotesWithFriends from './pages/ShareNotesWithFriends';
 import Favorites from './pages/Favorites';
 import AllStudyGroups from './pages/AllStudyGroups';
@@ -27,7 +26,6 @@ function App() {
 					<Route path="/editnote/:id" element={<EditNote />} />
 					<Route path="/note/:id" element={<ViewNote />} />
 					<Route path="/all-notes" element={<AllNotesPage />} />
-					<Route path="/sharenotes" element={<ShareNotes />} />
 					<Route path="/sharenoteswithfriends" element={<SharedNotesWithFriends />} />
 					<Route path="/favorites" element={<Favorites />} />
 					<Route path="/studygroups" element={<AllStudyGroups />} />

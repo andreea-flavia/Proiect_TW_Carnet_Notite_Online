@@ -149,14 +149,6 @@ const fetchGroups = async () => {
                     <span className="material-symbols-outlined">star</span>
                     <span className="text-sm font-medium">Favorites</span>
                 </button>
-                <button
-                    onClick={() => navigate('/ShareNotes')}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
-                >
-                    <span className="material-symbols-outlined text-[22px] group-hover:text-primary">share</span>
-                    <span className="text-sm font-medium">Share</span>
-                </button>
-
                 {/* BUTONUL ADAUGAT INAPOI */}
                 <button
                     onClick={() => navigate('/ShareNotesWithFriends')}
