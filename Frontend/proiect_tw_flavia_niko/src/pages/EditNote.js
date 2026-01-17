@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 function EditNote() {
   const { id } = useParams(); // Preluăm ID-ul din URL
@@ -19,6 +19,23 @@ function EditNote() {
   const [selectedGroupId, setSelectedGroupId] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const navigate = useNavigate();
+    // State-uri pentru YouTube
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [ytLoading, setYtLoading] = useState(false);
+  const [ytError, setYtError] = useState('');
+  const [ytLang, setYtLang] = useState('auto');
+
+  // State-uri pentru Link Preview
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkLoading, setLinkLoading] = useState(false);
+  const [linkError, setLinkError] = useState('');
+  const [linkPreview, setLinkPreview] = useState(null);
+
+  // State-uri pentru Transcript Local
+  const [localTranscriptText, setLocalTranscriptText] = useState('');
+  const [localTranscriptError, setLocalTranscriptError] = useState('');
+
+  const buttonHover = "hover:translate-x-1 transition-transform duration-200";
 
   // --- ADAUGAT PENTRU TOOLBAR ---
   const textareaRef = useRef(null);
@@ -184,32 +201,146 @@ function EditNote() {
     setModalName('');
   };
 
+  const handleFetchTranscript = async () => {
+    if (!youtubeUrl.trim()) {
+      setYtError('Introdu un link YouTube');
+      return;
+    }
+    setYtError('');
+    setYtLoading(true);
+    try {
+      const res = await axios.get('http://localhost:9000/api/integrations/youtube/transcript', {
+        params: { url: youtubeUrl.trim(), ...(ytLang !== 'auto' ? { lang: ytLang } : {}) }
+      });
+      const transcript = res.data?.transcript || '';
+      if (!transcript) {
+        setYtError('Nu am gasit transcript pentru acest video');
+      } else {
+        const block = `\n\n---\nTranscript YouTube:\n${transcript}\n---\n`;
+        setContent(prev => (prev || '') + block);
+      }
+    } catch (err) {
+      const apiError = err.response?.data?.error;
+      const details = err.response?.data?.details;
+      const msg = apiError ? (details ? `${apiError} (${details})` : apiError) : 'Eroare la preluarea transcriptului';
+      setYtError(msg);
+    } finally {
+      setYtLoading(false);
+    }
+  };
+
+  const handleLinkPreview = async () => {
+      if (!linkUrl.trim()) { setLinkError('Introdu un link'); return; }
+      setLinkError(''); setLinkLoading(true); setLinkPreview(null);
+      try {
+          const res = await axios.get('http://localhost:9000/api/integrations/link/preview', {
+              params: { url: linkUrl.trim() }
+          });
+          setLinkPreview(res.data);
+      } catch (err) { setLinkError('Eroare la link preview'); }
+      finally { setLinkLoading(false); }
+  };
+
+  const handleInsertLinkPreview = () => {
+      if (!linkPreview) return;
+      const block = `\n\n---\nSursa: ${linkPreview.siteName || 'Website'}\nTitlu: ${linkPreview.title}\nLink: ${linkPreview.url}\n${linkPreview.description ? `Descriere: ${linkPreview.description}\n` : ''}---\n`;
+      setContent(prev => (prev || '') + block);
+  };
+
+  const parseTranscriptFile = async (file) => {
+      const text = await file.text();
+      const raw = text.replace(/^\uFEFF/, '');
+      const noHeader = raw.replace(/^WEBVTT[\s\S]*?\n\n/i, '');
+      const lines = noHeader.split(/\r?\n/);
+      const cleaned = lines.filter(line => {
+          const t = line.trim();
+          if (!t || /^\d+$/.test(t) || /^\d{2}:\d{2}/.test(t)) return false;
+          return true;
+      });
+      return cleaned.join(' ').replace(/\s+/g, ' ').trim();
+  };
+
+  const handleLocalTranscriptUpload = async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+          const parsed = await parseTranscriptFile(file);
+          setLocalTranscriptText(parsed || '');
+      } catch (err) { setLocalTranscriptError('Eroare la citire'); }
+  };
+
+  const handleInsertLocalTranscript = () => {
+    if (!localTranscriptText) return;
+    const block = `\n\n---\nTranscript local:\n${localTranscriptText}\n---\n`;
+    setContent(prev => (prev || '') + block);
+  };
+
+
+
   return (
   <div className="min-h-screen flex overflow-hidden bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white">
     {/* 1. SIDEBAR STÂNGA (Navigație) */}
-    <aside className="w-64 h-full hidden lg:flex flex-col border-r border-[#cfe7d3] dark:border-gray-800 bg-surface-light dark:bg-background-dark shrink-0 p-4">
-      <div className="flex items-center gap-3 mb-8 px-2 mt-2">
-        <div className="flex flex-col overflow-hidden">
-          <h1 className="text-text-main dark:text-white text-base font-bold leading-tight truncate">StudioTeca</h1>
-          <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">Ace your exams!</p>
-        </div>
-      </div>
-      <nav className="flex flex-col gap-1 grow">
-        <button onClick={() => navigate('/dashboard')} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group">
-          <span className="material-symbols-outlined text-[22px] group-hover:text-primary">dashboard</span>
-          <span className="text-sm font-medium">Dashboard</span>
-        </button>
-        <button onClick={() => navigate('/all-notes')} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group">
-          <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
-          <span className="text-sm font-medium">My Notes</span>
-        </button>
-        <button onClick={() => navigate('/studygroups')} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group">
-          <span className="material-symbols-outlined text-[22px] group-hover:text-primary">groups</span>
-          <span className="text-sm font-medium">Study Groups</span>
-        </button>
-        <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
-      </nav>
-    </aside>
+    <aside className="w-64 h-full hidden lg:flex flex-col border-r border-[#cfe7d3] dark:border-gray-800 bg-surface-light dark:bg-background-dark p-4 shrink-0 transition-all">
+              <div className="flex items-center gap-3 mb-8 px-2 mt-2">
+                <div className="flex flex-col overflow-hidden">
+                  <h1 className="text-text-main dark:text-white text-base font-bold leading-tight truncate">StudioTeca</h1>
+                  <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">Ace your exams!</p>
+                </div>
+              </div>
+              <nav className="flex flex-col gap-1 grow">
+                <button 
+                    onClick={() => navigate('/dashboard')}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+                    >
+                    <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">
+                        dashboard
+                    </span>
+                    <span className="text-sm font-medium">Dashboard</span>
+                  </button>
+                <button 
+                  onClick={() => navigate('/all-notes')}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+                >
+                  <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
+                  <span className="text-sm font-medium">My Notes</span>
+                </button>
+                {/* Opțiunea Favorites în Sidebar */}
+                <button 
+                  onClick={() => navigate('/favorites')}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors text-left w-full ${buttonHover}`}
+                >
+                  <span className="material-symbols-outlined">star</span>
+                  <span className="text-sm font-medium">Favorites</span>
+                </button>
+                <button
+                  onClick={() => navigate('/sharenoteswithfriends')}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+                >
+                  <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
+                  <span className="text-sm font-medium">Share with Friends</span>
+                </button>
+      
+                <button
+                  onClick={() => navigate('/studygroups')}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+                >
+                  <span className="material-symbols-outlined text-[22px] group-hover:text-primary">groups</span>
+                  <span className="text-sm font-medium">Study Groups</span>
+                </button>
+      
+                <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
+                 <Link 
+                  to="/newnotes" 
+                  className={`flex w-full items-center justify-center gap-2 rounded-xl h-12 bg-primary hover:bg-[#cfe7d3] transition-all duration-300 text-white hover:text-[#2d4a31] text-sm font-bold shadow-lg shadow-primary/10 mt-2 group border border-transparent hover:border-[#b8d9bc] ${buttonHover}`}
+                >
+                  <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">
+                    add
+                  </span>
+                  <span>Create New Note</span>
+                </Link>
+                  
+              </nav>
+            </aside>
 
     {/* 2. AREA CENTRALĂ + SIDEBAR DREAPTA */}
     <main className="flex-1 flex flex-col h-full bg-white dark:bg-slate-900 overflow-hidden">
@@ -305,6 +436,110 @@ function EditNote() {
               <button type="button" onClick={() => applyFormatting('\n- ')} className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded transition-colors"><span className="material-symbols-outlined">format_list_bulleted</span></button>
               <button type="button" onClick={() => applyFormatting('`', '`')} className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded transition-colors"><span className="material-symbols-outlined">code</span></button>
             </div>
+
+            {/* Integrari Youtube and stuff */}
+        <div className="space-y-4">
+              
+              {/* YouTube Import */}
+              <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-red-500">smart_display</span>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Import YouTube transcript</h4>
+                </div>
+                <div className="flex flex-col md:flex-row gap-3">
+                  <input
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)}
+                    className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                  />
+                  <select
+                    value={ytLang}
+                    onChange={(e) => setYtLang(e.target.value)}
+                    className="px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+                  >
+                    <option value="auto">Auto</option>
+                    <option value="en">English</option>
+                    <option value="ro">Română</option>
+                  </select>
+                  <button
+                    type="button"
+                    onClick={handleFetchTranscript}
+                    disabled={ytLoading}
+                    className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg disabled:opacity-60"
+                  >
+                    {ytLoading ? 'Se preia...' : 'Importă'}
+                  </button>
+                </div>
+                {ytError && <p className="text-xs text-red-500">{ytError}</p>}
+              </div>
+
+              {/* Link Import */}
+              <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-blue-500">link</span>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Import link + metadate</h4>
+                </div>
+                <div className="flex flex-col md:flex-row gap-3">
+                  <input
+                    value={linkUrl}
+                    onChange={(e) => setLinkUrl(e.target.value)}
+                    className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+                    placeholder="https://..."
+                  />
+                  <button
+                    type="button"
+                    onClick={handleLinkPreview}
+                    disabled={linkLoading}
+                    className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg disabled:opacity-60"
+                  >
+                    {linkLoading ? 'Se preia...' : 'Previzualizează'}
+                  </button>
+                </div>
+                {linkPreview && (
+                  <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-white dark:bg-slate-900 space-y-2 mt-2">
+                    <p className="text-sm font-semibold">{linkPreview.title}</p>
+                    <button
+                      type="button"
+                      onClick={handleInsertLinkPreview}
+                      className="text-xs font-bold bg-primary/10 text-primary px-3 py-1.5 rounded-md hover:bg-primary/20"
+                    >
+                      Adaugă în notiță
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Local Transcript */}
+              <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-green-500">upload_file</span>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Import local transcript (.srt/.vtt)</h4>
+                </div>
+                <div className="flex flex-col md:flex-row gap-3">
+                  <input
+                    type="file"
+                    accept=".srt,.vtt"
+                    onChange={handleLocalTranscriptUpload}
+                    className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm file:mr-4 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:bg-primary/10 file:text-primary"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleInsertLocalTranscript}
+                    disabled={!localTranscriptText}
+                    className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg disabled:opacity-60"
+                  >
+                    Add to note
+                  </button>
+                </div>
+                {localTranscriptError && <p className="text-xs text-red-500">{localTranscriptError}</p>}
+                {localTranscriptText && (
+                  <p className="text-xs text-slate-500">Transcript loaded. Press "Add to note".</p>
+                )}
+              </div>
+
+            </div>
+            {/* END Integrari Youtube and stuff */}
 
             <textarea 
               ref={textareaRef}

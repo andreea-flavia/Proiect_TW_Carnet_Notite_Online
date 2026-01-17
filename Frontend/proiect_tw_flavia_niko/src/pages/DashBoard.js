@@ -312,6 +312,16 @@ const DashBoard = () => {
           </Link>
             
         </nav>
+        <div className="mt-auto px-6 py-8 border-t border-slate-100 dark:border-slate-800/50">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] leading-relaxed opacity-80">
+            <span className="font-bold text-slate-700 dark:text-slate-200">StudioTeca 2026</span>
+            <br />
+            Project created for 
+            <br />
+            educational purposes
+          </p>
+        </div>     
+
       </aside>
 
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
@@ -378,8 +388,12 @@ const DashBoard = () => {
         <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8">
           <section className="@container">
             <div className="relative overflow-hidden rounded-2xl bg-surface-light dark:bg-surface-dark border border-[#cfe7d3] dark:border-gray-700 min-h-[200px] flex flex-col justify-end p-6 md:p-8 group shadow-sm">
-              <div className="absolute inset-0 bg-cover bg-center opacity-40 dark:opacity-20 transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBP5wcRe1BYgW9J9keX6YOwn6ZG5PO_y3tGhzM7taI4Tw4l8J6QHNpCNnk5IcBh4-fVreBweRFa52_kh-t4KGovZKWdFjAz9ajy2533TPWyw_0SfKITVyBpYEChjhaoSYBAvx6sucwVpykdENrlRJvkWsR8O8O8cjJOetnA-JAB6nBVkV4QSCQffS9QhM1yQa91r5MowyKd1ZVsnDmZ8K_swMq6ouE0I0shw9ft1PStJZ0v_moLf2cuPl7z968ZFxzsJ6IMCmsRLN9g")' }} />
-              <div className="absolute inset-0 bg-gradient-to-t from-background-light dark:from-background-dark/90 via-transparent to-transparent" />
+              
+              <div className="absolute inset-0 bg-cover bg-center opacity-40 dark:opacity-20 transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop")' }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-background-light dark:from-background-dark/90 via-transparent to-transparent" /> 
+            
+              <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-purple-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 shadow-[0_-4px_12px_rgba(168,85,247,0.4)]" />
+
               <div className="relative z-10 max-w-2xl">
                 <h2 className="text-3xl md:text-4xl font-bold text-text-main dark:text-white mb-2">
                   Welcome, {user_first_name}!
@@ -553,7 +567,11 @@ const DashBoard = () => {
         <button onClick={() => navigate('/newnotes')} className={`md:hidden fixed bottom-6 right-6 h-14 w-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-white active:scale-95 transition-transform z-30 ${buttonHover}`}>
           <span className="material-symbols-outlined text-3xl">add</span>
         </button>
+
+        
       </main>
+
+      
     </div>
   );
 };

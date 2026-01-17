@@ -30,6 +30,7 @@ function NewNotes() {
   const [localTranscriptError, setLocalTranscriptError] = useState('');
   const navigate = useNavigate();
 
+  const buttonHover = "hover:translate-x-1 transition-transform duration-200";
   // --- ADAUGAT PENTRU TOOLBAR ---
   const textareaRef = useRef(null);
 
@@ -213,7 +214,7 @@ function NewNotes() {
       });
       const transcript = res.data?.transcript || '';
       if (!transcript) {
-        setYtError('Nu am găsit transcript pentru acest video');
+        setYtError('Nu am gasit transcript pentru acest video');
       } else {
         const block = `\n\n---\nTranscript YouTube:\n${transcript}\n---\n`;
         setContent(prev => (prev || '') + block);
@@ -299,43 +300,67 @@ function NewNotes() {
 
   return (
     <div className="min-h-screen flex overflow-hidden bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white">
-      <aside className="w-64 h-full hidden lg:flex flex-col border-r border-slate-200 dark:border-slate-800 bg-surface-light dark:bg-background-dark shrink-0">
-        <div className="flex items-center gap-3 p-6">
-          <div className="bg-primary p-1.5 rounded-lg">
-            <span className="material-symbols-outlined text-white">edit_note</span>
-          </div>
-          <h1 className="text-xl font-bold tracking-tight text-primary">StudioTeca</h1>
-        </div>
-        <nav className="flex flex-col gap-1 px-4 grow overflow-y-auto">
-          <button onClick={() => navigate('/dashboard')} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub dark:text-gray-400 hover:bg-accent-purple dark:hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined">dashboard</span>
-            <span className="text-sm font-medium">Dashboard</span>
-          </button>
-          <button onClick={() => navigate('/all-notes')} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub dark:text-gray-400 hover:bg-accent-purple dark:hover:bg-slate-800 transition-colors text-left">
-            <span className="material-symbols-outlined">menu_book</span>
-            <span className="text-sm font-medium">My Notes</span>
-          </button>
-          <button onClick={() => navigate('/calendar')} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub dark:text-gray-400 hover:bg-accent-purple dark:hover:bg-slate-800 transition-colors text-left">
-            <span className="material-symbols-outlined">calendar_today</span>
-            <span className="text-sm font-medium">Schedule</span>
-          </button>
-          <div className="my-4 border-t border-slate-100 dark:border-slate-800"></div>
-          <p className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Workspace</p>
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary-light dark:bg-primary/10 text-primary group transition-colors">
-            <span className="material-symbols-outlined fill-1">{id ? 'edit' : 'add_circle'}</span>
-            <span className="text-sm font-semibold">{id ? 'Edit Note' : 'New Note'}</span>
-          </div>
-        </nav>
-        <div className="p-4 mt-auto">
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
-            <p className="text-xs text-text-sub mb-2">Storage Usage</p>
-            <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-primary h-full w-[45%]"></div>
-            </div>
-            <p className="text-[10px] text-text-sub mt-2">2.3 GB of 5 GB used</p>
-          </div>
-        </div>
-      </aside>
+      <aside className="w-64 h-full hidden lg:flex flex-col border-r border-[#cfe7d3] dark:border-gray-800 bg-surface-light dark:bg-background-dark p-4 shrink-0 transition-all">
+              <div className="flex items-center gap-3 mb-8 px-2 mt-2">
+                <div className="flex flex-col overflow-hidden">
+                  <h1 className="text-text-main dark:text-white text-base font-bold leading-tight truncate">StudioTeca</h1>
+                  <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">Ace your exams!</p>
+                </div>
+              </div>
+              <nav className="flex flex-col gap-1 grow">
+                <button 
+                    onClick={() => navigate('/dashboard')}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+                    >
+                    <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">
+                        dashboard
+                    </span>
+                    <span className="text-sm font-medium">Dashboard</span>
+                  </button>
+                <button 
+                  onClick={() => navigate('/all-notes')}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+                >
+                  <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
+                  <span className="text-sm font-medium">My Notes</span>
+                </button>
+                {/* Opțiunea Favorites în Sidebar */}
+                <button 
+                  onClick={() => navigate('/favorites')}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors text-left w-full ${buttonHover}`}
+                >
+                  <span className="material-symbols-outlined">star</span>
+                  <span className="text-sm font-medium">Favorites</span>
+                </button>
+                <button
+                  onClick={() => navigate('/sharenoteswithfriends')}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+                >
+                  <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
+                  <span className="text-sm font-medium">Share with Friends</span>
+                </button>
+      
+                <button
+                  onClick={() => navigate('/studygroups')}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+                >
+                  <span className="material-symbols-outlined text-[22px] group-hover:text-primary">groups</span>
+                  <span className="text-sm font-medium">Study Groups</span>
+                </button>
+      
+                <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
+                 <Link 
+                  to="/newnotes" 
+                  className={`flex w-full items-center justify-center gap-2 rounded-xl h-12 bg-primary hover:bg-[#cfe7d3] transition-all duration-300 text-white hover:text-[#2d4a31] text-sm font-bold shadow-lg shadow-primary/10 mt-2 group border border-transparent hover:border-[#b8d9bc] ${buttonHover}`}
+                >
+                  <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">
+                    add
+                  </span>
+                  <span>Create New Note</span>
+                </Link> 
+                  
+              </nav>
+            </aside>
 
       <main className="flex-1 flex flex-col h-full bg-white dark:bg-slate-900 overflow-hidden">
         <header className="h-16 shrink-0 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-20">
@@ -428,8 +453,9 @@ function NewNotes() {
 
               {/* YouTube Transcript Import */}
               <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Importă transcript YouTube</h4>
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-red-500">smart_display</span>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Import YouTube transcript</h4>
                 </div>
                 <div className="flex flex-col md:flex-row gap-3">
                   <input
@@ -469,8 +495,9 @@ function NewNotes() {
 
               {/* Link Metadata Import */}
               <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Importă link + metadate</h4>
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-blue-500">link</span>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Import link + metadate</h4>
                 </div>
                 <div className="flex flex-col md:flex-row gap-3">
                   <input
@@ -512,15 +539,16 @@ function NewNotes() {
 
               {/* Local Transcript Upload */}
               <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Importă transcript local (.srt/.vtt)</h4>
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-green-500">upload_file</span>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Import local transcript (.srt/.vtt)</h4>
                 </div>
                 <div className="flex flex-col md:flex-row gap-3">
                   <input
                     type="file"
                     accept=".srt,.vtt"
                     onChange={handleLocalTranscriptUpload}
-                    className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+                    className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm file:mr-4 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:bg-primary/10 file:text-primary"
                   />
                   <button
                     type="button"
@@ -528,12 +556,12 @@ function NewNotes() {
                     disabled={!localTranscriptText}
                     className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg disabled:opacity-60"
                   >
-                    Adaugă în notiță
+                    Add to note
                   </button>
                 </div>
                 {localTranscriptError && <p className="text-xs text-red-500">{localTranscriptError}</p>}
                 {localTranscriptText && (
-                  <p className="text-xs text-slate-500">Transcript încărcat. Apasă „Adaugă în notiță”.</p>
+                  <p className="text-xs text-slate-500">Transcript loaded. Press "Add to note".</p>
                 )}
               </div>
 

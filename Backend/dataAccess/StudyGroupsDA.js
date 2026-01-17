@@ -40,6 +40,14 @@ async function addMemberToGroup(userId, groupCode) {
 }
 
 async function addNoteToGroup(noteId, groupId, userId) {
+    const existing = await Group_Notes.findOne({ where: { note_id: noteId } });
+
+    if(existing) {
+        console.log("Nota exista deja intr-un grup. Actualizam asocierea...");
+        return await existing.update({
+            group_id: parseInt(groupId),
+        });
+    }
     try {
         console.log("Date primite in DA:", { noteId, groupId, userId });
 
