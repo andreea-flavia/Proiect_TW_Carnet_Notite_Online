@@ -132,13 +132,13 @@ const AllNotes = () => {
         if (idx < 0) {
             let hash = 0;
             for (let i = 0; i < name.length; i += 1) {
-            hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+                hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
             }
-            idx = hash % 48; 
+            idx = hash % 48;
         }
         const hue = (idx * 137.508) % 360;
-        
-        
+
+
         return {
             '--bar-color': `hsl(${hue} 70% 45%)`,
             '--badge-bg': `hsl(${hue} 85% 90% / 0.95)`,
@@ -161,14 +161,14 @@ const AllNotes = () => {
                     </div>
                 </div>
                 <nav className="flex flex-col gap-1 grow">
-                    <button 
+                    <button
                         onClick={() => navigate('/dashboard')}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
                     >
                         <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">dashboard</span>
                         <span className="text-sm font-medium">Dashboard</span>
                     </button>
-                    <button 
+                    <button
                         onClick={() => navigate('/all-notes')}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
                     >
@@ -197,8 +197,8 @@ const AllNotes = () => {
                         <span className="text-sm font-medium">Study Groups</span>
                     </button>
                     <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
-                    <Link 
-                        to="/newnotes" 
+                    <Link
+                        to="/newnotes"
                         className="flex w-full items-center justify-center gap-2 rounded-xl h-12 bg-primary hover:bg-[#cfe7d3] transition-all duration-300 text-white hover:text-[#2d4a31] text-sm font-bold shadow-lg shadow-primary/10 mt-2 group border border-transparent hover:border-[#b8d9bc]"
                     >
                         <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">add</span>
@@ -215,23 +215,23 @@ const AllNotes = () => {
                             <h1 className="text-3xl font-extrabold tracking-tight">My Notes</h1>
                             <p className="text-slate-500 dark:text-slate-400 mt-1">Manage and organize your course materials</p>
                         </div>
-                        <button className="p-2 rounded-full border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all" onClick={() => document.documentElement.classList.toggle('dark')}>
+                        {/* <button className="p-2 rounded-full border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all" onClick={() => document.documentElement.classList.toggle('dark')}>
                             <span className="material-symbols-outlined">dark_mode</span>
-                        </button>
+                        </button> */}
                     </div>
 
                     <div className="flex flex-wrap items-center gap-4 mb-6">
                         <div className="relative flex-1 min-w-[300px]">
                             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-                            <input 
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-primary focus:border-primary dark:text-slate-100" 
-                                placeholder="Search by title..." 
+                            <input
+                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-primary focus:border-primary dark:text-slate-100"
+                                placeholder="Search by title..."
                                 type="text"
                                 onChange={(e) => { setSearchTerm(e.target.value); setHeaderSearch(e.target.value); }}
                             />
                         </div>
                         <div className="relative min-w-[140px]">
-                            <select 
+                            <select
                                 className="w-full pl-4 pr-10 py-2.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-primary focus:border-primary appearance-none dark:text-slate-100"
                                 value={selectedSubject}
                                 onChange={(e) => setSelectedSubject(e.target.value)}
@@ -265,11 +265,10 @@ const AllNotes = () => {
                         <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">Filter by Tags:</span>
                         <button
                             onClick={() => setSelectedTag(null)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                                selectedTag === null
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${selectedTag === null
                                     ? 'bg-primary text-white shadow-md'
                                     : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                            }`}
+                                }`}
                         >
                             All Tags
                         </button>
@@ -277,11 +276,10 @@ const AllNotes = () => {
                             <button
                                 key={tag}
                                 onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                                    selectedTag === tag
+                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${selectedTag === tag
                                         ? 'bg-primary text-white shadow-md'
                                         : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                                }`}
+                                    }`}
                             >
                                 #{tag}
                             </button>
@@ -291,17 +289,17 @@ const AllNotes = () => {
 
                 {/* GRID DE NOTITE */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {sortedNotes.length > 0 ? (
+                    {sortedNotes.length > 0 ? (
                         sortedNotes.map(n => (
-                            
-                            <div 
-                                key={n.note_id} 
-                                onClick={() => navigate(`/note/${n.note_id}`)} 
+
+                            <div
+                                key={n.note_id}
+                                onClick={() => navigate(`/note/${n.note_id}`)}
                                 className="cursor-pointer group flex flex-col bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1 relative"
                                 style={getSubjectColorVars(n.Subject?.subject_name)}
                             >
                                 <div className="absolute left-0 top-4 bottom-4 w-1 bg-[var(--bar-color)] rounded-r-md" style={getSubjectColorVars(n.Subject?.subject_name)} />
-                                
+
                                 <div className="flex justify-between items-start mb-3 ml-2" style={getSubjectColorVars(n.Subject?.subject_name)}>
                                     <div>
                                         <span className="inline-block px-2 py-1 rounded bg-[var(--badge-bg)] text-[var(--badge-text)] dark:bg-[var(--badge-bg-dark)] dark:text-[var(--badge-text-dark)] text-[10px] font-bold uppercase tracking-wider mb-1">
@@ -327,7 +325,7 @@ const AllNotes = () => {
                                                 key={t.tag_id}
                                                 className="px-2 py-1 rounded text-[10px] font-bold border transition-transform hover:scale-105"
                                                 style={{
-                                                    backgroundColor: `${t.tag_desc}15`, 
+                                                    backgroundColor: `${t.tag_desc}15`,
                                                     color: t.tag_desc,
                                                     borderColor: `${t.tag_desc}40`
                                                 }}
@@ -341,10 +339,10 @@ const AllNotes = () => {
                                         </span>
                                     )}
                                 </div>
-                                    
+
                                 <div className="ml-2 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                                     <span className="flex items-center gap-1">
-                                        <span className="material-symbols-outlined text-[16px]">schedule</span> 
+                                        <span className="material-symbols-outlined text-[16px]">schedule</span>
                                         {n.createdAt ? new Date(n.createdAt).toLocaleDateString('ro-RO') + ' ' + new Date(n.createdAt).toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }) : ''}
                                     </span>
                                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -352,7 +350,7 @@ const AllNotes = () => {
                                         <button onClick={(e) => handleDelete(e, n.note_id)} className="text-slate-400 hover:text-red-500"><span className="material-symbols-outlined text-lg">delete</span></button>
                                     </div>
                                 </div>
-                                
+
                             </div>
                         ))
                     ) : (

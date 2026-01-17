@@ -97,23 +97,23 @@ const Favorites = () => {
           </div>
         </div>
         <nav className="flex flex-col gap-1 grow">
-          <button 
-              onClick={() => navigate('/dashboard')}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
-              >
-              <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">
-                  dashboard
-              </span>
-              <span className="text-sm font-medium">Dashboard</span>
-            </button>
-          <button 
+          <button
+            onClick={() => navigate('/dashboard')}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+          >
+            <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">
+              dashboard
+            </span>
+            <span className="text-sm font-medium">Dashboard</span>
+          </button>
+          <button
             onClick={() => navigate('/all-notes')}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
           >
             <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
             <span className="text-sm font-medium">My Notes</span>
           </button>
-          <button 
+          <button
             onClick={() => navigate('/favorites')}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors text-left w-full ${buttonHover}`}
           >
@@ -137,8 +137,8 @@ const Favorites = () => {
           </button>
 
           <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
-          <Link 
-            to="/newnotes" 
+          <Link
+            to="/newnotes"
             className={`flex w-full items-center justify-center gap-2 rounded-xl h-12 bg-primary hover:bg-[#cfe7d3] transition-all duration-300 text-white hover:text-[#2d4a31] text-sm font-bold shadow-lg shadow-primary/10 mt-2 group border border-transparent hover:border-[#b8d9bc] ${buttonHover}`}
           >
             <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">
@@ -147,16 +147,6 @@ const Favorites = () => {
             <span>Create New Note</span>
           </Link>
         </nav>
-        <div className="mt-auto flex flex-col gap-2">
-          <a className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors ${buttonHover}`} href="#">
-            <span className="material-symbols-outlined">delete</span>
-            <span className="text-sm font-medium">Trash</span>
-          </a>
-          <a className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors ${buttonHover}`} href="#">
-            <span className="material-symbols-outlined">settings</span>
-            <span className="text-sm font-medium">Settings</span>
-          </a>
-        </div>
       </aside>
 
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
@@ -200,19 +190,19 @@ const Favorites = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredFavorites.map(n => (
-                <div key={n.note_id} className="bg-white dark:bg-surface-dark rounded-xl border border-[#cfe7d3] dark:border-gray-700 p-4 shadow-sm cursor-pointer" onClick={() => navigate(`/note/${n.note_id}`)}>
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h3 className="text-lg font-bold text-text-main dark:text-white">{highlightText(n.title, searchQuery)}</h3>
-                      <p className="text-sm text-text-sub dark:text-gray-400">{highlightText(n.subject ? (n.subject.subject_name || n.subject.subject_title) : '', searchQuery)}</p>
+                  <div key={n.note_id} className="bg-white dark:bg-surface-dark rounded-xl border border-[#cfe7d3] dark:border-gray-700 p-4 shadow-sm cursor-pointer" onClick={() => navigate(`/note/${n.note_id}`)}>
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="text-lg font-bold text-text-main dark:text-white">{highlightText(n.title, searchQuery)}</h3>
+                        <p className="text-sm text-text-sub dark:text-gray-400">{highlightText(n.subject ? (n.subject.subject_name || n.subject.subject_title) : '', searchQuery)}</p>
+                      </div>
+                      <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(n.note_id, n.is_favorite); }} className={`p-1.5 rounded-md text-yellow-500 hover:bg-yellow-50 ${buttonHover}`}>
+                        <span className="material-symbols-outlined fill-1">star</span>
+                      </button>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(n.note_id, n.is_favorite); }} className={`p-1.5 rounded-md text-yellow-500 hover:bg-yellow-50 ${buttonHover}`}>
-                      <span className="material-symbols-outlined fill-1">star</span>
-                    </button>
+                    <p className="text-sm text-text-main/80 dark:text-gray-400 line-clamp-4">{highlightText(n.content, searchQuery)}</p>
                   </div>
-                  <p className="text-sm text-text-main/80 dark:text-gray-400 line-clamp-4">{highlightText(n.content, searchQuery)}</p>
-                </div>
-              ))}
+                ))}
               </div>
             )}
           </div>

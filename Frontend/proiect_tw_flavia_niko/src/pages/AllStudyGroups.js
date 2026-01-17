@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const AllStudyGroups = () => {
+    const buttonHover = "hover:translate-x-1 transition-transform duration-200";
     const [groups, setGroups] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [joinCode, setJoinCode] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newGroup, setNewGroup] = useState({ name: '', desc: '' });
-    
+
     const navigate = useNavigate();
     const userId = localStorage.getItem('user_id');
 
@@ -20,15 +21,15 @@ const AllStudyGroups = () => {
         fetchGroups();
     }, []);
 
-const fetchGroups = async () => {
-    try {
-        const res = await axios.get(`http://localhost:9000/api/user/${userId}/groups`);
-        // console.log("Groups loaded:", res.data); // Ar trebui sa vezi un array de obiecte
-        setGroups(res.data); 
-    } catch (err) {
-        console.error("Fetch error:", err);
-    }
-};
+    const fetchGroups = async () => {
+        try {
+            const res = await axios.get(`http://localhost:9000/api/user/${userId}/groups`);
+            // console.log("Groups loaded:", res.data); // Ar trebui sa vezi un array de obiecte
+            setGroups(res.data);
+        } catch (err) {
+            console.error("Fetch error:", err);
+        }
+    };
 
     const handleJoin = async () => {
         const userId = localStorage.getItem('user_id');
@@ -48,7 +49,7 @@ const fetchGroups = async () => {
             if (res.status === 201 || res.status === 200) {
                 alert("Successfully joined the study group!");
                 setJoinCode('');
-                fetchGroups(); 
+                fetchGroups();
             }
         } catch (err) {
             console.error("Join group error:", err.response?.data);
@@ -59,7 +60,7 @@ const fetchGroups = async () => {
 
     const handleCreateGroup = async (e) => {
         e.preventDefault();
-        const userId = localStorage.getItem('user_id'); 
+        const userId = localStorage.getItem('user_id');
 
         if (!userId) {
             alert("Errow with user!");
@@ -68,7 +69,7 @@ const fetchGroups = async () => {
         const groupPayload = {
             group_name: newGroup.name,
             group_desc: newGroup.desc,
-            created_by: userId 
+            created_by: userId
         };
         try {
             // console.log("Se trimit datele catre server:", groupPayload);
@@ -83,31 +84,31 @@ const fetchGroups = async () => {
         }
     };
 
-    const filteredGroups = groups.filter(g => 
+    const filteredGroups = groups.filter(g =>
         g.group_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const Highlight = ({ text, query }) => {
-    if (!text) return null;
-    if (!query) return <>{text}</>;
-    const lower = text.toLowerCase();
-    const q = query.toLowerCase();
-    const parts = [];
-    let start = 0;
-    let idx = lower.indexOf(q, start);
-    while (idx !== -1) {
-      if (idx > start) parts.push({ text: text.slice(start, idx), match: false });
-      parts.push({ text: text.slice(idx, idx + q.length), match: true });
-      start = idx + q.length;
-      idx = lower.indexOf(q, start);
-    }
-    if (start < text.length) parts.push({ text: text.slice(start), match: false });
-    return (
-      <>
-        {parts.map((p, i) => (p.match ? <mark key={i} className="bg-yellow-200 dark:bg-yellow-600/40">{p.text}</mark> : <span key={i}>{p.text}</span>))}
-      </>
-    );
-  };
+        if (!text) return null;
+        if (!query) return <>{text}</>;
+        const lower = text.toLowerCase();
+        const q = query.toLowerCase();
+        const parts = [];
+        let start = 0;
+        let idx = lower.indexOf(q, start);
+        while (idx !== -1) {
+            if (idx > start) parts.push({ text: text.slice(start, idx), match: false });
+            parts.push({ text: text.slice(idx, idx + q.length), match: true });
+            start = idx + q.length;
+            idx = lower.indexOf(q, start);
+        }
+        if (start < text.length) parts.push({ text: text.slice(start), match: false });
+        return (
+            <>
+                {parts.map((p, i) => (p.match ? <mark key={i} className="bg-yellow-200 dark:bg-yellow-600/40">{p.text}</mark> : <span key={i}>{p.text}</span>))}
+            </>
+        );
+    };
 
 
 
@@ -116,20 +117,20 @@ const fetchGroups = async () => {
             {/* Sidebar*/}
             <aside className="w-64 h-full hidden lg:flex flex-col border-r border-[#cfe7d3] dark:border-gray-800 bg-surface-light dark:bg-background-dark p-4 shrink-0 transition-all">
                 <div className="flex items-center gap-3 mb-8 px-2 mt-2">
-                <div className="flex flex-col overflow-hidden">
-                    <h1 className="text-text-main dark:text-white text-base font-bold leading-tight truncate">StudioTeca</h1>
-                    <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">Ace your exams!</p>
-                </div>
+                    <div className="flex flex-col overflow-hidden">
+                        <h1 className="text-text-main dark:text-white text-base font-bold leading-tight truncate">StudioTeca</h1>
+                        <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">Ace your exams!</p>
+                    </div>
                 </div>
                 <nav className="flex flex-col gap-1 grow">
-                    <button 
+                    <button
                         onClick={() => navigate('/dashboard')}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
                     >
                         <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">dashboard</span>
                         <span className="text-sm font-medium">Dashboard</span>
                     </button>
-                    <button 
+                    <button
                         onClick={() => navigate('/all-notes')}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group"
                     >
@@ -158,6 +159,15 @@ const fetchGroups = async () => {
                         <span className="text-sm font-medium">Study Groups</span>
                     </button>
                     <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
+                    <Link
+                        to="/newnotes"
+                        className={`flex w-full items-center justify-center gap-2 rounded-xl h-12 bg-primary hover:bg-[#cfe7d3] transition-all duration-300 text-white hover:text-[#2d4a31] text-sm font-bold shadow-lg shadow-primary/10 mt-2 group border border-transparent hover:border-[#b8d9bc] ${buttonHover}`}
+                    >
+                        <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">
+                            add
+                        </span>
+                        <span>Create New Note</span>
+                    </Link>
                 </nav>
             </aside>
 
@@ -167,9 +177,9 @@ const fetchGroups = async () => {
                 <div className="w-full px-8 pt-6 pb-4">
                     <div className="relative max-w-2xl mx-auto">
                         <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#706189]">search</span>
-                        <input 
-                            className="w-full pl-12 pr-4 py-3 rounded-full border-none bg-white dark:bg-[#1f1a29] shadow-sm focus:ring-2 focus:ring-primary text-base outline-none transition-all" 
-                            placeholder="Search your groups by name..." 
+                        <input
+                            className="w-full pl-12 pr-4 py-3 rounded-full border-none bg-white dark:bg-[#1f1a29] shadow-sm focus:ring-2 focus:ring-primary text-base outline-none transition-all"
+                            placeholder="Search your groups by name..."
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -199,9 +209,9 @@ const fetchGroups = async () => {
                             {filteredGroups.map((g) => (
                                 <div key={g.group_id} className="group bg-white dark:bg-[#1f1a29] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-transparent hover:border-primary/20">
                                     <div className="h-44 bg-gradient-to-br from-primary to-[#4c1d95] flex items-center justify-center relative overflow-hidden">
-                                        
+
                                         <div className="absolute inset-0 opacity-50 bg-[url('https://www.transparenttextures.com/patterns/diamond-upholstery.png')]"></div>
-                                        
+
                                         <span className="material-symbols-outlined text-7xl text-white/30 group-hover:scale-110 group-hover:text-white/50 transition-all duration-500 relative z-10">
                                             groups
                                         </span>
@@ -216,16 +226,16 @@ const fetchGroups = async () => {
                                             </span>
                                         </div>
                                         <p className="text-sm text-[#706189] dark:text-gray-400 mt-2 line-clamp-2">
-                                            <Highlight 
-                                                text={g.group_desc || "No description provided."} 
-                                                query={searchQuery} 
+                                            <Highlight
+                                                text={g.group_desc || "No description provided."}
+                                                query={searchQuery}
                                             />
                                         </p>
                                         <div className="flex items-center gap-4 mt-4 text-xs font-bold text-primary bg-primary/5 w-fit px-3 py-1 rounded-lg">
                                             <span className="material-symbols-outlined text-sm">key</span>
                                             <span className="tracking-widest">{g.group_code}</span>
                                         </div>
-                                        <button 
+                                        <button
                                             onClick={() => navigate(`/group/${g.group_id}`)}
                                             className="w-full mt-6 py-3 rounded-xl bg-background-light dark:bg-white/5 text-primary font-bold text-sm hover:bg-primary hover:text-white transition-all"
                                         >
@@ -241,14 +251,14 @@ const fetchGroups = async () => {
                     <div className="w-80 shrink-0">
                         <div className="sticky top-10">
                             <div className="bg-white dark:bg-[#1f1a29] border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-sm overflow-hidden">
-                                
+
                                 {/* Section: CREATE */}
                                 <div className="mb-8">
                                     <h3 className="text-xl font-bold mb-2">New Community</h3>
                                     <p className="text-sm text-[#706189] mb-6 leading-relaxed">
                                         Can't find your group? Create one for your classmates.
                                     </p>
-                                    <button 
+                                    <button
                                         onClick={() => setShowCreateModal(true)}
                                         className="w-full bg-primary text-white px-6 py-4 rounded-xl text-base font-bold shadow-md hover:bg-primary/90 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                                     >
@@ -271,15 +281,15 @@ const fetchGroups = async () => {
                                         Enter the code shared by your colleagues.
                                     </p>
                                     <div className="space-y-4">
-                                        <input 
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-background-light dark:bg-white/5 focus:ring-2 focus:ring-primary outline-none text-sm font-mono text-center tracking-widest" 
-                                            placeholder="CODE24" 
+                                        <input
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-background-light dark:bg-white/5 focus:ring-2 focus:ring-primary outline-none text-sm font-mono text-center tracking-widest"
+                                            placeholder="CODE26"
                                             type="text"
                                             maxLength={10}
                                             value={joinCode}
                                             onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                                         />
-                                        <button 
+                                        <button
                                             onClick={handleJoin}
                                             className="w-full bg-white dark:bg-white/5 text-primary border-2 border-primary font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all"
                                         >
@@ -303,19 +313,19 @@ const fetchGroups = async () => {
                             <form onSubmit={handleCreateGroup} className="space-y-4">
                                 <div>
                                     <label className="text-sm font-bold mb-1 block ml-1 text-gray-700 dark:text-gray-300">Group Name</label>
-                                    <input 
+                                    <input
                                         className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-transparent outline-none focus:ring-2 focus:ring-primary"
                                         required
                                         value={newGroup.name}
-                                        onChange={(e) => setNewGroup({...newGroup, name: e.target.value})}
+                                        onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
                                     />
                                 </div>
                                 <div>
                                     <label className="text-sm font-bold mb-1 block ml-1 text-gray-700 dark:text-gray-300">Description</label>
-                                    <textarea 
+                                    <textarea
                                         className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-transparent outline-none focus:ring-2 focus:ring-primary h-32 resize-none"
                                         value={newGroup.desc}
-                                        onChange={(e) => setNewGroup({...newGroup, desc: e.target.value})}
+                                        onChange={(e) => setNewGroup({ ...newGroup, desc: e.target.value })}
                                     />
                                 </div>
                                 <div className="flex gap-3 pt-4">

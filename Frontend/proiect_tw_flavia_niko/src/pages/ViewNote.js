@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown'; // Importul necesar pentru ca formatarea sa functioneze
 
 const ViewNote = () => {
@@ -11,6 +11,7 @@ const ViewNote = () => {
   const [userLast, setUserLast] = useState('');
   const user_id = localStorage.getItem('user_id');
   const [searchQuery, setSearchQuery] = useState('');
+  const buttonHover = "hover:translate-x-1 transition-transform duration-200";
 
   const Highlight = ({ text, query }) => {
     if (!text) return null;
@@ -44,7 +45,7 @@ const ViewNote = () => {
       }
     };
     fetchNote();
-    
+
     const fetchUser = async () => {
       try {
         if (!user_id) return;
@@ -59,74 +60,70 @@ const ViewNote = () => {
 
   return (
     <div className="min-h-screen flex bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white">
-      <aside className="w-64 h-full hidden lg:flex flex-col border-r border-[#cfe7d3] dark:border-gray-800 bg-surface-light dark:bg-background-dark p-4 shrink-0">
-        <div className="flex items-center gap-3 mb-6 px-2 mt-2">
+      <aside className="w-64 h-full hidden lg:flex flex-col border-r border-[#cfe7d3] dark:border-gray-800 bg-surface-light dark:bg-background-dark p-4 shrink-0 transition-all">
+        <div className="flex items-center gap-3 mb-8 px-2 mt-2">
           <div className="flex flex-col overflow-hidden">
             <h1 className="text-text-main dark:text-white text-base font-bold leading-tight truncate">StudioTeca</h1>
-            <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">Your notes at a glance</p>
+            <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">Ace your exams!</p>
           </div>
         </div>
-
-        <nav className="flex flex-col gap-1">
-          <button onClick={() => navigate('/dashboard')} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-white hover:bg-accent-green transition-colors">
-            <span className="material-symbols-outlined">dashboard</span>
+        <nav className="flex flex-col gap-1 grow">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+          >
+            <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">
+              dashboard
+            </span>
             <span className="text-sm font-medium">Dashboard</span>
           </button>
-
-          <button onClick={() => navigate('/all-notes')} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green transition-colors">
-            <span className="material-symbols-outlined">description</span>
+          <button
+            onClick={() => navigate('/all-notes')}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+          >
+            <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
             <span className="text-sm font-medium">My Notes</span>
           </button>
-
-          <button onClick={() => navigate('/')} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green transition-colors">
-            <span className="material-symbols-outlined">class</span>
-            <span className="text-sm font-medium">Courses</span>
-          </button>
-
-          <button onClick={() => navigate('/')} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green transition-colors">
-            <span className="material-symbols-outlined">calendar_month</span>
-            <span className="text-sm font-medium">Calendar</span>
-          </button>
-
-          <button onClick={() => navigate('/all-notes')} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green transition-colors">
+          {/* Opțiunea Favorites în Sidebar */}
+          <button
+            onClick={() => navigate('/favorites')}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors text-left w-full ${buttonHover}`}
+          >
             <span className="material-symbols-outlined">star</span>
             <span className="text-sm font-medium">Favorites</span>
           </button>
-        </nav>
-
-        <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
-        <p className="px-3 text-xs font-semibold text-text-sub dark:text-gray-500 uppercase tracking-wider mb-1">Tags</p>
-        <button onClick={() => navigate('/all-notes')} className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green transition-colors">
-          <div className="w-2 h-2 rounded-full bg-red-400" />
-          <span className="text-sm font-medium">#ExamPrep</span>
-        </button>
-        <button onClick={() => navigate('/all-notes')} className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green transition-colors">
-          <div className="w-2 h-2 rounded-full bg-blue-400" />
-          <span className="text-sm font-medium">#Homework</span>
-        </button>
-        <button onClick={() => navigate('/all-notes')} className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green transition-colors">
-          <div className="w-2 h-2 rounded-full bg-yellow-400" />
-          <span className="text-sm font-medium">#Research</span>
-        </button>
-
-        <div className="mt-auto flex flex-col gap-2">
-          <button onClick={() => navigate('/trash')} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green transition-colors">
-            <span className="material-symbols-outlined">delete</span>
-            <span className="text-sm font-medium">Trash</span>
+          <button
+            onClick={() => navigate('/sharenoteswithfriends')}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+          >
+            <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
+            <span className="text-sm font-medium">Share with Friends</span>
           </button>
-          <button onClick={() => navigate('/settings')} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green transition-colors">
-            <span className="material-symbols-outlined">settings</span>
-            <span className="text-sm font-medium">Settings</span>
+
+          <button
+            onClick={() => navigate('/studygroups')}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+          >
+            <span className="material-symbols-outlined text-[22px] group-hover:text-primary">groups</span>
+            <span className="text-sm font-medium">Study Groups</span>
           </button>
-          <button onClick={() => navigate('/newnotes')} className="flex w-full items-center justify-center gap-2 rounded-lg h-12 bg-primary hover:bg-[#0fd630] transition-colors text-text-main text-sm font-bold shadow-sm mt-2">
-            <span className="material-symbols-outlined text-[20px]">add</span>
+
+          <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
+          <Link
+            to="/newnotes"
+            className={`flex w-full items-center justify-center gap-2 rounded-xl h-12 bg-primary hover:bg-[#cfe7d3] transition-all duration-300 text-white hover:text-[#2d4a31] text-sm font-bold shadow-lg shadow-primary/10 mt-2 group border border-transparent hover:border-[#b8d9bc] ${buttonHover}`}
+          >
+            <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">
+              add
+            </span>
             <span>Create New Note</span>
-          </button>
-        </div>
+          </Link>
+
+        </nav>
       </aside>
 
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-        <header className="h-16 shrink-0 border-b border-[#cfe7d3] dark:border-gray-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md flex items-center justify-between px-6 z-10">
+        <header className="relative h-16 shrink-0 border-b border-[#cfe7d3] dark:border-gray-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md flex items-center justify-between px-6 z-10">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate(-1)} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
               <span className="material-symbols-outlined">arrow_back</span>
@@ -137,24 +134,25 @@ const ViewNote = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="hidden md:block w-[420px]">
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="material-symbols-outlined text-text-sub dark:text-gray-500">search</span>
-                </div>
-                <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg bg-white dark:bg-surface-dark text-text-main dark:text-white placeholder-text-sub focus:outline-none focus:ring-2 focus:ring-primary/50 sm:text-sm shadow-sm" placeholder="Search your notes..." type="text" />
+          {/* Search Bar Centered */}
+          <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px]">
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span className="material-symbols-outlined text-text-sub dark:text-gray-500">search</span>
               </div>
+              <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg bg-white dark:bg-surface-dark text-text-main dark:text-white placeholder-text-sub focus:outline-none focus:ring-2 focus:ring-primary/50 sm:text-sm shadow-sm" placeholder="Search note..." type="text" />
             </div>
+          </div>
 
-            <button title="Toggle theme" onClick={() => document.documentElement.classList.toggle('dark')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+          <div className="flex items-center gap-4">
+            {/* <button title="Toggle theme" onClick={() => document.documentElement.classList.toggle('dark')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
               <span className="material-symbols-outlined">dark_mode</span>
-            </button>
+            </button> */}
 
-            <button title="Notifications" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 relative">
+            {/* <button title="Notifications" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 relative">
               <span className="material-symbols-outlined">notifications</span>
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-background-light dark:border-background-dark"></span>
-            </button>
+            </button> */}
 
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/dashboard')}>
               <p className="hidden sm:block text-sm font-semibold">{userFirst ? `${userFirst} ${userLast}` : 'Account'}</p>
@@ -166,12 +164,17 @@ const ViewNote = () => {
         </header>
 
         <div className="flex-1 overflow-y-auto p-8">
+          <div className="max-w-4xl mx-auto mb-4 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 px-4 py-3 rounded-xl flex items-center gap-2 border border-blue-100 dark:border-blue-900/30">
+            <span className="material-symbols-outlined text-[20px]">visibility</span>
+            <span className="text-sm font-bold">View Mode - You are viewing this note in read-only mode.</span>
+          </div>
+
           <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-2xl p-8 shadow">
             {/* ADAUGAT: ReactMarkdown în interiorul containerului de text */}
             <div className="prose dark:prose-invert max-w-full whitespace-pre-wrap leading-relaxed">
               {/* Dacă există o căutare activă, folosim Highlight, altfel randăm Markdown-ul */}
               {searchQuery ? (
-                 <Highlight text={note.content} query={searchQuery} />
+                <Highlight text={note.content} query={searchQuery} />
               ) : (
                 <ReactMarkdown>{note.content}</ReactMarkdown>
               )}
@@ -180,8 +183,8 @@ const ViewNote = () => {
             {note.resources && note.resources.length > 0 && (
               <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
                 <h3 className="font-bold mb-4 flex items-center gap-2">
-                   <span className="material-symbols-outlined">attach_file</span>
-                   Resources
+                  <span className="material-symbols-outlined">attach_file</span>
+                  Resources
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {note.resources.map(r => {

@@ -4,6 +4,7 @@ import Group_Notes from '../entities/Group_Notes.js';
 import Users from '../entities/Users.js';
 import Notes from '../entities/Notes.js';
 import Subjects from '../entities/Subjects.js';
+import Tags from '../entities/Tags.js';
 
 const generateGroupCode = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -42,7 +43,7 @@ async function addMemberToGroup(userId, groupCode) {
 async function addNoteToGroup(noteId, groupId, userId) {
     const existing = await Group_Notes.findOne({ where: { note_id: noteId } });
 
-    if(existing) {
+    if (existing) {
         console.log("Nota exista deja intr-un grup. Actualizam asocierea...");
         return await existing.update({
             group_id: parseInt(groupId),
@@ -79,7 +80,7 @@ async function removeMemberFromGroup(groupId, memberId) {
 
 async function getFullGroupDetails(groupId) {
     return await Study_Groups.findByPk(groupId, {
-        include:[
+        include: [
             {
                 model: Users,
                 as: 'members',
@@ -90,7 +91,8 @@ async function getFullGroupDetails(groupId) {
                 as: 'groupNotes',
                 include: [
                     { model: Users, as: 'author', attributes: ['user_first_name', 'user_last_name'] },
-                    { model: Subjects, as: 'subject', attributes: ['subject_id', 'subject_name'] }
+                    { model: Subjects, as: 'subject', attributes: ['subject_id', 'subject_name'] },
+                    { model: Tags, as: 'tags', through: { attributes: [] } }
                 ]
             }
         ]
@@ -98,35 +100,35 @@ async function getFullGroupDetails(groupId) {
 }
 
 async function leaveGroup(groupId, userId) {
-    try{
+    try {
         return await Group_Members.destroy({
             where: {
                 user_id: userId,
                 group_id: groupId
             }
         });
-    }catch (e){
+    } catch (e) {
         console.error("Error leaving group:", e);
         throw e;
     }
 }
 
 async function deleteGroup(groupId) {
-    try{
+    try {
         return await Study_Groups.destroy({
-            where: {group_id: groupId}
+            where: { group_id: groupId }
         });
-    } catch(e){
+    } catch (e) {
         console.error("Error deleting group:", e);
         throw e;
     }
 }
 
 
-export { 
-    createGroup, 
-    addMemberToGroup, 
-    addNoteToGroup, 
+export {
+    createGroup,
+    addMemberToGroup,
+    addNoteToGroup,
     getGroupById,
     removeMemberFromGroup,
     getFullGroupDetails,

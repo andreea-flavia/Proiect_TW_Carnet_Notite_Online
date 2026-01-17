@@ -203,7 +203,7 @@ function NewNotes() {
 
   const handleFetchTranscript = async () => {
     if (!youtubeUrl.trim()) {
-      setYtError('Introdu un link YouTube');
+      setYtError('Add a YouTube link');
       return;
     }
     setYtError('');
@@ -231,7 +231,7 @@ function NewNotes() {
 
   const handleLinkPreview = async () => {
     if (!linkUrl.trim()) {
-      setLinkError('Introdu un link');
+      setLinkError('Add a link');
       return;
     }
     setLinkError('');
@@ -301,66 +301,66 @@ function NewNotes() {
   return (
     <div className="min-h-screen flex overflow-hidden bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white">
       <aside className="w-64 h-full hidden lg:flex flex-col border-r border-[#cfe7d3] dark:border-gray-800 bg-surface-light dark:bg-background-dark p-4 shrink-0 transition-all">
-              <div className="flex items-center gap-3 mb-8 px-2 mt-2">
-                <div className="flex flex-col overflow-hidden">
-                  <h1 className="text-text-main dark:text-white text-base font-bold leading-tight truncate">StudioTeca</h1>
-                  <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">Ace your exams!</p>
-                </div>
-              </div>
-              <nav className="flex flex-col gap-1 grow">
-                <button 
-                    onClick={() => navigate('/dashboard')}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
-                    >
-                    <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">
-                        dashboard
-                    </span>
-                    <span className="text-sm font-medium">Dashboard</span>
-                  </button>
-                <button 
-                  onClick={() => navigate('/all-notes')}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
-                >
-                  <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
-                  <span className="text-sm font-medium">My Notes</span>
-                </button>
-                {/* Opțiunea Favorites în Sidebar */}
-                <button 
-                  onClick={() => navigate('/favorites')}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors text-left w-full ${buttonHover}`}
-                >
-                  <span className="material-symbols-outlined">star</span>
-                  <span className="text-sm font-medium">Favorites</span>
-                </button>
-                <button
-                  onClick={() => navigate('/sharenoteswithfriends')}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
-                >
-                  <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
-                  <span className="text-sm font-medium">Share with Friends</span>
-                </button>
-      
-                <button
-                  onClick={() => navigate('/studygroups')}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
-                >
-                  <span className="material-symbols-outlined text-[22px] group-hover:text-primary">groups</span>
-                  <span className="text-sm font-medium">Study Groups</span>
-                </button>
-      
-                <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
-                 <Link 
-                  to="/newnotes" 
-                  className={`flex w-full items-center justify-center gap-2 rounded-xl h-12 bg-primary hover:bg-[#cfe7d3] transition-all duration-300 text-white hover:text-[#2d4a31] text-sm font-bold shadow-lg shadow-primary/10 mt-2 group border border-transparent hover:border-[#b8d9bc] ${buttonHover}`}
-                >
-                  <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">
-                    add
-                  </span>
-                  <span>Create New Note</span>
-                </Link> 
-                  
-              </nav>
-            </aside>
+        <div className="flex items-center gap-3 mb-8 px-2 mt-2">
+          <div className="flex flex-col overflow-hidden">
+            <h1 className="text-text-main dark:text-white text-base font-bold leading-tight truncate">StudioTeca</h1>
+            <p className="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal truncate">Ace your exams!</p>
+          </div>
+        </div>
+        <nav className="flex flex-col gap-1 grow">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-white hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+          >
+            <span className="material-symbols-outlined text-[22px] text-text-main dark:text-white group-hover:text-primary transition-colors">
+              dashboard
+            </span>
+            <span className="text-sm font-medium">Dashboard</span>
+          </button>
+          <button
+            onClick={() => navigate('/all-notes')}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+          >
+            <span className="material-symbols-outlined text-[22px] group-hover:text-primary">description</span>
+            <span className="text-sm font-medium">My Notes</span>
+          </button>
+          {/* Opțiunea Favorites în Sidebar */}
+          <button
+            onClick={() => navigate('/favorites')}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark transition-colors text-left w-full ${buttonHover}`}
+          >
+            <span className="material-symbols-outlined">star</span>
+            <span className="text-sm font-medium">Favorites</span>
+          </button>
+          <button
+            onClick={() => navigate('/sharenoteswithfriends')}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+          >
+            <span className="material-symbols-outlined text-[22px] group-hover:text-primary">group_add</span>
+            <span className="text-sm font-medium">Share with Friends</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/studygroups')}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-main dark:text-gray-300 hover:bg-accent-green dark:hover:bg-surface-dark hover:translate-x-1 transition-all duration-200 group text-left ${buttonHover}`}
+          >
+            <span className="material-symbols-outlined text-[22px] group-hover:text-primary">groups</span>
+            <span className="text-sm font-medium">Study Groups</span>
+          </button>
+
+          <div className="my-4 border-t border-[#cfe7d3] dark:border-gray-800" />
+          <Link
+            to="/newnotes"
+            className={`flex w-full items-center justify-center gap-2 rounded-xl h-12 bg-primary hover:bg-[#cfe7d3] transition-all duration-300 text-white hover:text-[#2d4a31] text-sm font-bold shadow-lg shadow-primary/10 mt-2 group border border-transparent hover:border-[#b8d9bc] ${buttonHover}`}
+          >
+            <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">
+              add
+            </span>
+            <span>Create New Note</span>
+          </Link>
+
+        </nav>
+      </aside>
 
       <main className="flex-1 flex flex-col h-full bg-white dark:bg-slate-900 overflow-hidden">
         <header className="h-16 shrink-0 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-20">
@@ -377,8 +377,8 @@ function NewNotes() {
               type="button"
               onClick={() => setShowGroupModal(true)}
               className={`px-5 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2 border-2 
-                ${selectedGroupId 
-                  ? 'bg-primary/10 border-primary text-primary shadow-sm' 
+                ${selectedGroupId
+                  ? 'bg-primary/10 border-primary text-primary shadow-sm'
                   : 'bg-transparent border-dashed border-gray-300 dark:border-gray-700 text-[#706189] dark:text-gray-400 hover:border-primary hover:text-primary'
                 }`}
             >
@@ -423,8 +423,8 @@ function NewNotes() {
                           type="button"
                           onClick={() => handleTagClick(t.tag_id)}
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border
-                            ${isSelected 
-                              ? 'bg-primary border-primary text-white shadow-md shadow-primary/20 translate-y-[-1px]' 
+                            ${isSelected
+                              ? 'bg-primary border-primary text-white shadow-md shadow-primary/20 translate-y-[-1px]'
                               : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-primary/50'
                             }`}
                         >
@@ -487,7 +487,7 @@ function NewNotes() {
                     disabled={ytLoading}
                     className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg disabled:opacity-60"
                   >
-                    {ytLoading ? 'Se preia...' : 'Importă'}
+                    {ytLoading ? 'Se preia...' : 'Import'}
                   </button>
                 </div>
                 {ytError && <p className="text-xs text-red-500">{ytError}</p>}
@@ -513,7 +513,7 @@ function NewNotes() {
                     disabled={linkLoading}
                     className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg disabled:opacity-60"
                   >
-                    {linkLoading ? 'Se preia...' : 'Previzualizează'}
+                    {linkLoading ? 'Se preia...' : 'Preview'}
                   </button>
                 </div>
                 {linkError && <p className="text-xs text-red-500">{linkError}</p>}
@@ -530,7 +530,7 @@ function NewNotes() {
                         onClick={handleInsertLinkPreview}
                         className="px-3 py-2 text-xs font-bold bg-primary text-white rounded-md"
                       >
-                        Adaugă în notiță
+                        Add to note
                       </button>
                     </div>
                   </div>
@@ -565,11 +565,11 @@ function NewNotes() {
                 )}
               </div>
 
-              <textarea 
+              <textarea
                 ref={textareaRef}
-                value={content} 
-                onChange={e => setContent(e.target.value)} 
-                className="w-full min-h-[500px] text-lg leading-relaxed border-none focus:ring-0 placeholder-slate-300 dark:bg-transparent resize-none p-0 text-slate-800 dark:text-slate-200" 
+                value={content}
+                onChange={e => setContent(e.target.value)}
+                className="w-full min-h-[500px] text-lg leading-relaxed border-none focus:ring-0 placeholder-slate-300 dark:bg-transparent resize-none p-0 text-slate-800 dark:text-slate-200"
                 placeholder="Start typing..."
               ></textarea>
             </div>
@@ -670,11 +670,10 @@ function NewNotes() {
                     <div
                       key={group.group_id}
                       onClick={() => setSelectedGroupId(group.group_id)}
-                      className={`p-4 rounded-xl cursor-pointer border-2 transition-all flex items-center justify-between group ${
-                        selectedGroupId === group.group_id
-                          ? 'border-primary bg-primary/5'
-                          : 'border-transparent bg-background-light dark:bg-[#2d243a] hover:border-primary/30'
-                      }`}
+                      className={`p-4 rounded-xl cursor-pointer border-2 transition-all flex items-center justify-between group ${selectedGroupId === group.group_id
+                        ? 'border-primary bg-primary/5'
+                        : 'border-transparent bg-background-light dark:bg-[#2d243a] hover:border-primary/30'
+                        }`}
                     >
                       <div className="flex flex-col">
                         <span className={`font-bold ${selectedGroupId === group.group_id ? 'text-primary' : ''}`}>

@@ -1,7 +1,7 @@
 import express from 'express';
-import {    
-    createUser,  
-    getUsers,  
+import {
+    createUser,
+    getUsers,
     getUserById,
     getUserWithNotes,
     getUserWithGroups,
@@ -26,39 +26,39 @@ usersRouter.route('/user/:id').get(async(req,res) => {
 });*/
 
 usersRouter.route('/user')
-    .post (async (req, res) => {
-        try{
+    .post(async (req, res) => {
+        try {
             const new_user = await createUser(req.body);
             return res.status(201).json(new_user);
-        } catch (error){
-            return  res.status(400).json({error: error.message});
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
         }
     })
-    .get (async(req, res) => {
+    .get(async (req, res) => {
         return res.json(await getUsers());
     });
 
 usersRouter.route('/user/:id')
-    .get(async(req, res) => {
+    .get(async (req, res) => {
         const user = await getUserById(req.params.id);
-        if(user) return res.json(user);
-        return res.status(404).json({error: 'User not found'});
+        if (user) return res.json(user);
+        return res.status(404).json({ error: 'User not found' });
     })
-    .put(async(req, res) => {
+    .put(async (req, res) => {
         const updated = await updateUser(req.params.id, req.body);
-        if(updated) return res.json(updated);
-        return res.status(404).json({error: 'User not found'});
+        if (updated) return res.json(updated);
+        return res.status(404).json({ error: 'User not found' });
     })
-    .delete(async(req, res) => {
+    .delete(async (req, res) => {
         const deleted = await deleteUser(req.params.id);
-        if(deleted) return res.json(deleted);
-        return res.status(404).json({error: 'User not found'});
+        if (deleted) return res.json(deleted);
+        return res.status(404).json({ error: 'User not found' });
     });
 
-usersRouter.route('/user/:id/notes').get(async(req, res) => {
+usersRouter.route('/user/:id/notes').get(async (req, res) => {
     const user_notes = await getUserWithNotes(req.params.id);
-    if(user_notes) return res.json(user_notes);
-    return res.status(404).json({error: 'User not found'});
+    if (user_notes) return res.json(user_notes);
+    return res.status(404).json({ error: 'User not found' });
 });
 
 usersRouter.get('/user/:id/groups', async (req, res) => {
@@ -76,18 +76,17 @@ usersRouter.get('/user/:id/groups', async (req, res) => {
 });
 
 //ruta pentru login
-usersRouter.route('/login').post(async(req, res) => { ///user/search/user_mail
-    try{
-        const {email, password}  = req.body;
+usersRouter.route('/login').post(async (req, res) => { ///user/search/user_mail
+    try {
+        const { email, password } = req.body;
         const user = await getUserByEmail(email);
 
-        if(!user){
-            return res.status(404).json({error: 'User not found! Please register first.'});
+        if (!user) {
+            return res.status(404).json({ error: 'User not found! Please register first.' });
         }
-        /*
-        if(user.user_password.trim() !== password.trim()){
-            return res.status(401).json({error: 'Invalid password!'});
-        }*/
+        if (user.user_password.trim() !== password.trim()) {
+            return res.status(401).json({ error: 'Invalid password!' });
+        }
 
         return res.status(200).json({
             success: true,
@@ -98,8 +97,8 @@ usersRouter.route('/login').post(async(req, res) => { ///user/search/user_mail
                 lastName: user.user_last_name
             }
         });
-    } catch(e){
-        return res.status(500).json({error: 'Internal server error'});
+    } catch (e) {
+        return res.status(500).json({ error: 'Internal server error' });
     }
 });
 

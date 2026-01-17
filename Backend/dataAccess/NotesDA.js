@@ -3,7 +3,9 @@ import Subjects from '../entities/Subjects.js';
 import Resources from '../entities/Resources.js';
 import Tags from '../entities/Tags.js';
 
-async function createNote(note){
+import Study_Groups from '../entities/Study_Groups.js';
+
+async function createNote(note) {
     return await Notes.create(note);
 }
 
@@ -11,12 +13,12 @@ async function getNotes() {
     try {
         return await Notes.findAll({
             include: [
-                { 
-                    model: Subjects, 
+                {
+                    model: Subjects,
                     as: 'subject'
                 },
-                { 
-                    model: Tags, 
+                {
+                    model: Tags,
                     as: 'tags', // TREBUIE sa fie identic cu alias-ul din index.js
                     through: { attributes: [] } // Aceasta linie curata raspunsul de datele intermediare din notes_tags
                 }
@@ -34,7 +36,8 @@ async function getNoteFullDetails(id) {
         include: [
             { model: Subjects, as: 'subject' },
             { model: Resources, as: 'resources' },
-            { model: Tags, as: 'tags' }
+            { model: Tags, as: 'tags' },
+            { model: Study_Groups, as: 'inGroups' }
         ]
     });
 }

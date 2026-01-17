@@ -24,28 +24,32 @@ const LoginPage = () => {
 
 	const handleSubmit = async (e) => {
 
-		if(e) e.preventDefault();
-		
+		if (e) e.preventDefault();
+
 		if (!validateEmail(email)) {
 			setError('Please enter an institutional email ending with @stud.ase.ro');
 			return;
 		}
-		try{
+		if (!password) {
+			setError('Please enter your password');
+			return;
+		}
+		try {
 			setError('');
 			const response = await axios.post('http://localhost:9000/api/login', {
-				email: email//,
-				//password: password
+				email: email,
+				password: password
 			});
 
-			if(response.data.success){
+			if (response.data.success) {
 				const id_primit = response.data.user.id;
 				console.log("Id-ul salvat: ", id_primit);
-				if(id_primit){
+				if (id_primit) {
 					localStorage.setItem('user_id', id_primit);
 					navigate('/dashboard');
 				}
 			}
-		} catch(e){
+		} catch (e) {
 			const serverMessage = e.response?.data?.error || 'Error';
 			setError(serverMessage);
 			console.log("Server error:", serverMessage);
@@ -58,7 +62,7 @@ const LoginPage = () => {
 	return (
 		<div className="bg-background-light dark:bg-background-dark font-display text-[#0d141b] dark:text-slate-50 antialiased">
 			<div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
-        
+
 				{/* Header Section */}
 				<header className="w-full px-6 py-6 md:px-12 flex items-center justify-between">
 					<div className="flex items-center gap-3">
@@ -103,10 +107,10 @@ const LoginPage = () => {
 											onChange={(e) => setPassword(e.target.value)}
 											className={`w-full rounded-lg bg-slate-50 dark:bg-slate-800 py-3 pl-10 pr-10 text-slate-800 dark:text-slate-200 focus:ring-2 placeholder:text-slate-400 border border-slate-300 dark:border-slate-700 focus:ring-primary`}
 											placeholder="••••••••"
-											type={showPassword ? "text" : "password"} 
+											type={showPassword ? "text" : "password"}
 											required
 										/>
-										<button 
+										<button
 											type="button"
 											onClick={() => setShowPassword(!showPassword)}
 											className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
@@ -114,7 +118,7 @@ const LoginPage = () => {
 											<span className="material-symbols-outlined text-sm">
 												{showPassword ? 'visibility_off' : 'visibility'}
 											</span>
-										</button>						
+										</button>
 									</div>
 									{error && (
 										<p id="email-error" className="mt-2 text-sm text-red-600 dark:text-red-400 text-left">{error}</p>
