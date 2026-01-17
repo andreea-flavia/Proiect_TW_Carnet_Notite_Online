@@ -54,7 +54,7 @@ collabRouter.route('/note/share').post(async (req, res) => {
         const created = await shareNote(shareData);
         await addNotification(
             user.user_id,
-            `Ai fost invitat(ă) la notița "${note.title}"`,
+            `You have been invited to note "${note.title}"`,
             { note_id: noteIdNum }
         );
         return res.status(201).json(created);
@@ -118,8 +118,8 @@ collabRouter.route('/group/:groupId/member/:memberId').delete(async (req, res) =
 //Adaugare nota in grup
 collabRouter.post('/group/note', async (req, res) => {
     try {
-        const {group_id, note_id, created_by} = req.body;
-        console.log("!!! RUTA GASITA !!!", {group_id, note_id, created_by});
+        const { group_id, note_id, created_by } = req.body;
+        console.log("!!! RUTA GASITA !!!", { group_id, note_id, created_by });
 
         if (!group_id || !note_id || !created_by) {
             return res.status(400).json({ error: "Incomplete data!" });
@@ -140,10 +140,10 @@ collabRouter.post('/group/note', async (req, res) => {
             message: created ? "Note added to group." : "Note group updated.",
             data: result
         });
-    } catch(e){
+    } catch (e) {
         console.error("Backend Error: ", e);
 
-        if(e.name === 'SequelizeUniqueConstraintError')
+        if (e.name === 'SequelizeUniqueConstraintError')
             return res.status(400).json({ message: "Note already added to this group." });
         return res.status(500).json({ message: e.message });
     }
@@ -153,11 +153,11 @@ collabRouter.route('/group/:groupId/full').get(async (req, res) => {
     try {
         const { groupId } = req.params;
         const groupDetails = await getFullGroupDetails(groupId);
-        
+
         if (!groupDetails) {
             return res.status(404).json({ error: "Group not found" });
         }
-        
+
         return res.status(200).json(groupDetails);
     } catch (err) {
         return res.status(500).json({ error: err.message });

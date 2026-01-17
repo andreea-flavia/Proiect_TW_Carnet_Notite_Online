@@ -166,7 +166,7 @@ const SharedNotesWithFriends = () => {
             <div className="flex flex-col h-screen ml-64 lg:ml-64 ml:0">
                 <div className="flex flex-col h-screen">
                     {/* Header */}
-                    <header className="flex items-center justify-between px-8 py-4 border-b border-slate-100 dark:border-slate-800 sticky top-0 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md z-50">
+                    {/* <header className="flex items-center justify-between px-8 py-4 border-b border-slate-100 dark:border-slate-800 sticky top-0 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md z-50">
                         <div className="flex items-center gap-10">
                             <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/dashboard')}>
                                 <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold">
@@ -177,8 +177,8 @@ const SharedNotesWithFriends = () => {
                         </div>
                         {/* <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 border-2 border-primary/20 overflow-hidden">
                             <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDz7XR7CUg0IWC4WjX0PGjIJEHi48zoTg0h6qYSfw6i9ljalToZukZKlw2HdPA6XS2v2HW1zg4iZiVESX2oz3XmERVW-whl7Uihvh6lEXNyXN7xN0khnS2pd1IxwaiGbMPftyp06SKK160vX_l01XEBz9ZOhj5r2cnMKVw5uhp3OQOtHVPPsTnSN_afGsYwup7ngQyFdOqhaE0d_RgLgx2Ck1JT--6lhNoffyzhwXel8dhE4EgsMr9_NRbrHo3N4XPjsiH6IHaDTK8F" alt="User" />
-                        </div> */}
-                    </header>
+                        </div> 
+                    </header> */}
 
                     <main className="flex flex-1 overflow-hidden">
                         {/* Left Sidebar */}
@@ -193,7 +193,7 @@ const SharedNotesWithFriends = () => {
                                             </div>
                                             <div className="flex flex-col justify-center min-w-0">
                                                 <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">{microNote.title}</h4>
-                                                <p className="text-xs text-primary font-medium mt-0.5">Exemplu</p>
+                                                <p className="text-xs text-primary font-medium mt-0.5">Example</p>
                                             </div>
                                         </div>
                                     </div>
@@ -221,7 +221,7 @@ const SharedNotesWithFriends = () => {
                                 <nav className="flex items-center gap-2 mb-8 text-sm font-medium text-slate-400">
                                     <button onClick={() => navigate('/dashboard')} className="hover:text-primary transition-colors">Dashboard</button>
                                     <span className="material-symbols-outlined text-sm">chevron_right</span>
-                                    <span className="text-sm font-bold text-slate-900 dark:text-white">Distribuie Notițe</span>
+                                    <span className="text-sm font-bold text-slate-900 dark:text-white">Share Notes</span>
                                 </nav>
 
                                 <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-xl p-1 overflow-hidden">
@@ -290,7 +290,7 @@ const SharedNotesWithFriends = () => {
                                                         </div>
                                                     </div>
                                                     <span className={`px-3 py-1 text-xs font-bold rounded-full ${collab.permission_type === 'EDIT' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30' : 'bg-green-100 text-green-700 dark:bg-green-900/30'}`}>
-                                                        {collab.permission_type === 'EDIT' ? 'Poate edita' : 'Acces Vizualizare'}
+                                                        {collab.permission_type === 'EDIT' ? 'Edit' : 'View Only'}
                                                     </span>
                                                 </div>
                                             )) : (
